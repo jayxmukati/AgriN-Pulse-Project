@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Diagnostic Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#825100",
+                      "error": "#ba1a1a",
+                      "primary-container": "#00855d",
+                      "on-error": "#ffffff",
+                      "surface-bright": "#f8f9ff",
+                      "surface-variant": "#d3e4fe",
+                      "on-primary-fixed-variant": "#005137",
+                      "secondary-container": "#e21e49",
+                      "on-surface-variant": "#3d4a42",
+                      "tertiary-fixed": "#ffddb8",
+                      "secondary-fixed-dim": "#ffb3b6",
+                      "on-secondary-fixed-variant": "#920028",
+                      "surface": "#f8f9ff",
+                      "surface-tint": "#006c4a",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "on-primary-container": "#f5fff7",
+                      "secondary": "#ba0035",
+                      "primary-fixed": "#85f8c4",
+                      "primary-fixed-dim": "#68dba9",
+                      "tertiary-container": "#a36700",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-container": "#fffbff",
+                      "surface-container-low": "#eff4ff",
+                      "primary": "#006948",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-container": "#e5eeff",
+                      "inverse-surface": "#213145",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "outline": "#6d7a72",
+                      "error-container": "#ffdad6",
+                      "on-error-container": "#93000a",
+                      "on-surface": "#0b1c30",
+                      "on-secondary-fixed": "#40000c",
+                      "inverse-primary": "#68dba9",
+                      "outline-variant": "#bccac0",
+                      "background": "#f8f9ff",
+                      "on-background": "#0b1c30",
+                      "on-tertiary-container": "#fffbff",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-primary": "#ffffff",
+                      "secondary-fixed": "#ffdada",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-primary-fixed": "#002114",
+                      "surface-container-high": "#dce9ff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-dim": "#cbdbf5"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "base": "4px",
+                      "xl": "32px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "container-margin": "16px",
+                      "gutter": "12px"
+              },
+              "fontFamily": {
+                      "data-mono": ["Inter"],
+                      "body-md": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "label-md": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "headline-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface dark:bg-surface-container-low border-b border-outline-variant dark:border-outline flat no shadows z-50">
+<div class="flex items-center justify-between px-container-margin h-14 w-full">
+<button aria-label="Go back" class="text-primary dark:text-primary-fixed hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors duration-200 active:scale-95 p-2 rounded-full -ml-2">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex flex-col items-center">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed">Diagnostic Results</h1>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[12px]">verified_user</span> GPS/Photo Data Anonymized
+                </span>
+</div>
+<button aria-label="Share" class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors duration-200 active:scale-95 p-2 rounded-full -mr-2">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</header>
+<main class="p-container-margin space-y-lg max-w-2xl mx-auto">
+<!-- Image Preview Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm relative">
+<div class="h-48 w-full relative bg-surface-variant">
+<img alt="Scanned crop leaf" class="w-full h-full object-cover" data-alt="A close-up photograph of a tomato leaf showing signs of Early Blight (Alternaria solani). The image is captured in bright, natural daylight in a field setting, typical of a high-stakes agricultural environment. The focus is sharp on a specific dark, concentric ringed lesion on the vibrant green leaf. The overall aesthetic is scientific and documentarian, fitting for a modern diagnostic crop pathology tool." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBawbyBuEOtlCCYIvq1tsL6yrsVRCOf78mCmH_gutT5cUn-NrD5qabEIeOMTseMypxnflQCnvt6LM-1GzbaYdnI8wApHQEHBrYNRqd5tDnoR_xOHTcnNTwLbQm69sFQEIBv-ezcv0bXOfihdlwz7AEhbM_UdVFDNzg1v4adIyOeN9adopojux2fN1apxv4YIf_FsG7uFQGbaXcC1iCg9T2pbISgrCezD7lHz3BC_3mZbXSs1hFIIYQ"/>
+<!-- Bounding Box Overlay -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-24 h-24 border-2 border-primary border-dashed rounded-DEFAULT relative">
+<div class="absolute -top-1.5 -left-1.5 w-3 h-3 bg-primary"></div>
+<div class="absolute -top-1.5 -right-1.5 w-3 h-3 bg-primary"></div>
+<div class="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-primary"></div>
+<div class="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-primary"></div>
+<span class="absolute top-full mt-1 left-1/2 -translate-x-1/2 bg-surface/90 text-primary font-label-sm text-label-sm px-1 rounded-DEFAULT shadow-sm backdrop-blur-sm whitespace-nowrap">Detected Region</span>
+</div>
+</div>
+</div>
+<div class="p-md flex justify-between items-center border-t-4 border-tertiary">
+<span class="font-label-md text-label-md text-tertiary flex items-center gap-2">
+<span class="material-symbols-outlined icon-filled text-tertiary">warning</span>
+                    Pathology Severity: Moderate
+                </span>
+<span class="font-data-mono text-data-mono text-on-surface-variant">ID: SCAN-8492</span>
+</div>
+</section>
+<!-- Diagnostic Confidence Card -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Tomato Early Blight</h2>
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-lg">Alternaria solani</p>
+<div class="space-y-sm mb-lg">
+<div class="flex justify-between items-end">
+<span class="font-label-md text-label-md text-on-surface">Primary Match Confidence</span>
+<span class="font-data-mono text-data-mono text-primary font-bold">94%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 94%;"></div>
+</div>
+</div>
+<div class="border-t border-outline-variant pt-md">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant mb-sm uppercase tracking-wider">Alternative Matches</h3>
+<ul class="space-y-2">
+<li class="flex items-center gap-3">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+<span class="font-body-md text-body-md text-on-surface text-sm flex-1">Septoria Leaf Spot</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant text-xs">12%</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+<span class="font-body-md text-body-md text-on-surface text-sm flex-1">Late Blight</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant text-xs">4%</span>
+</li>
+</ul>
+</div>
+</section>
+<!-- Regenerative Treatment Plan Accordion -->
+<section>
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">eco</span> Regenerative Treatment Plan
+            </h2>
+<div class="border border-outline-variant rounded-xl overflow-hidden bg-surface-container-lowest divide-y divide-outline-variant">
+<!-- Section 1 -->
+<details class="group" open="">
+<summary class="flex justify-between items-center p-md cursor-pointer font-label-md text-label-md text-on-surface bg-surface-container-lowest hover:bg-surface-container-low transition-colors min-h-[48px]">
+                        Natural &amp; Low-Cost Treatments
+                        <span class="material-symbols-outlined transition-transform group-open:rotate-180 text-on-surface-variant">expand_more</span>
+</summary>
+<div class="p-md pt-0 bg-surface-container-lowest">
+<ul class="list-disc pl-5 space-y-2 font-body-md text-body-md text-on-surface-variant mt-sm">
+<li>Apply <strong class="text-on-surface">Bio-fungicide sprays</strong> (e.g., Bacillus subtilis based) immediately to surrounding healthy plants.</li>
+<li>Use <strong class="text-on-surface">Neem oil</strong> at a dosage of 2 tablespoons per gallon of water, applied weekly in the early morning or late evening.</li>
+<li>Remove and securely dispose of infected lower leaves to reduce spore spread.</li>
+</ul>
+</div>
+</details>
+<!-- Section 2 -->
+<details class="group">
+<summary class="flex justify-between items-center p-md cursor-pointer font-label-md text-label-md text-on-surface bg-surface-container-lowest hover:bg-surface-container-low transition-colors min-h-[48px]">
+                        Soil &amp; Water Management Rules
+                        <span class="material-symbols-outlined transition-transform group-open:rotate-180 text-on-surface-variant">expand_more</span>
+</summary>
+<div class="p-md pt-0 bg-surface-container-lowest">
+<ul class="list-disc pl-5 space-y-2 font-body-md text-body-md text-on-surface-variant mt-sm">
+<li><strong class="text-on-surface">Adjust irrigation based on upcoming rainfall:</strong> Switch entirely to drip irrigation to keep foliage dry. Avoid overhead watering.</li>
+<li><strong class="text-on-surface">Increase spacing for airflow:</strong> Ensure a minimum of 24 inches between plants if possible, pruning excess dense foliage in the lower canopy.</li>
+<li>Apply a thick layer of organic mulch to prevent soil-borne spores from splashing onto lower leaves during heavy rain.</li>
+</ul>
+</div>
+</details>
+</div>
+</section>
+<!-- Action Buttons -->
+<section class="space-y-sm pt-sm pb-lg">
+<!-- Audio Advisory Button/Player -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-sm flex items-center gap-md">
+<button aria-label="Play audio advisory" class="w-12 h-12 flex-shrink-0 bg-primary text-on-primary rounded-full flex items-center justify-center hover:bg-surface-tint transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+<span class="material-symbols-outlined icon-filled text-[28px]">play_circle</span>
+</button>
+<div class="flex-1 flex flex-col justify-center">
+<span class="font-label-sm text-label-sm text-on-surface mb-1">Listen to Audio Advisory</span>
+<div class="flex items-center gap-2">
+<span class="font-data-mono text-data-mono text-on-surface-variant text-[10px]">0:00</span>
+<div class="h-1.5 flex-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-0"></div>
+</div>
+<span class="font-data-mono text-data-mono text-on-surface-variant text-[10px]">2:15</span>
+</div>
+</div>
+</div>
+<!-- Secondary Action -->
+<button class="w-full min-h-[48px] flex items-center justify-center gap-2 border border-outline text-on-surface font-label-md text-label-md rounded-xl hover:bg-surface-container-low transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-surface-container-lowest">
+<span class="material-symbols-outlined">share</span>
+                Share with Regional Extension Agent
+            </button>
+</section>
+</main>
+<!-- BottomNavBar (Hidden on desktop, present on mobile for top-level context, though typically suppressed on deep screens, included here based on instruction to show shell if applicable, but contextually this is a deep screen. The prompt says "create a mobile diagnostic results screen" and didn't strictly ask for nav, but I will include it suppressed as per rules, wait, the prompt asks to design the screen. I will omit BottomNav as this is a transactional/detail screen with a 'Back' button, following the "Automatic Suppression" rule). -->
+</body></html>

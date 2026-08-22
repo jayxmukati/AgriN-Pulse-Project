@@ -1,0 +1,28 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS fields (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    geo_id VARCHAR(255) UNIQUE NOT NULL,
+    h3_index VARCHAR(15) NOT NULL,
+    geometry GEOMETRY(Polygon, 4326) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS pathology_scans (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    geo_id VARCHAR(255) REFERENCES fields(geo_id),
+    disease_name VARCHAR(255) NOT NULL,
+    confidence FLOAT NOT NULL,
+    image_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS agronomic_knowledge (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    embedding VECTOR(1536) NOT NULL,
+    category VARCHAR(255) NOT NULL
+);

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BRICS AgriN-Pulse Analytics Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed": "#2b170a",
+                        "tertiary": "#e4bfaa",
+                        "surface-tint": "#c0c6de",
+                        "surface-container-highest": "#353436",
+                        "on-surface": "#e5e2e3",
+                        "surface-container-low": "#1b1b1d",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#909097",
+                        "surface": "#131315",
+                        "on-secondary-fixed": "#0d1c2f",
+                        "primary-fixed": "#dce1fb",
+                        "on-surface-variant": "#c6c6cd",
+                        "on-secondary-container": "#abb9d2",
+                        "tertiary-fixed": "#ffdbc8",
+                        "inverse-primary": "#585e73",
+                        "primary-fixed-dim": "#c0c6de",
+                        "surface-container": "#201f21",
+                        "outline-variant": "#46464c",
+                        "surface-variant": "#353436",
+                        "secondary-fixed": "#d5e3fd",
+                        "surface-container-high": "#2a2a2b",
+                        "on-secondary-fixed-variant": "#3a485c",
+                        "tertiary-fixed-dim": "#e4bfaa",
+                        "surface-container-lowest": "#0e0e0f",
+                        "on-tertiary": "#422b1d",
+                        "secondary-container": "#3c4a5e",
+                        "tertiary-container": "#110400",
+                        "primary": "#c0c6de",
+                        "on-secondary": "#233144",
+                        "surface-bright": "#39393a",
+                        "on-tertiary-container": "#917260",
+                        "on-primary-fixed": "#151b2d",
+                        "secondary": "#b9c7e0",
+                        "inverse-surface": "#e5e2e3",
+                        "on-primary-container": "#72778d",
+                        "on-primary": "#2a3043",
+                        "inverse-on-surface": "#303032",
+                        "on-background": "#e5e2e3",
+                        "on-primary-fixed-variant": "#40465a",
+                        "primary-container": "#020617",
+                        "surface-dim": "#131315",
+                        "secondary-fixed-dim": "#b9c7e0",
+                        "on-tertiary-fixed-variant": "#5b4131",
+                        "background": "#131315",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "border-subtle": "#1e293b",
+                        "trend-up": "#10b981",
+                        "trend-down": "#ef4444",
+                        "trend-warn": "#f59e0b"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-desktop": "24px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "margin-mobile": "16px",
+                        "panel-gap": "1px"
+                    },
+                    fontFamily: {
+                        "headline-sm": ["Space Grotesk"],
+                        "mono-data": ["Geist"],
+                        "headline-md": ["Space Grotesk"],
+                        "body-lg": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "display-lg": ["Space Grotesk"],
+                        "label-caps": ["Geist"],
+                        "body-md": ["Geist"]
+                    },
+                    fontSize: {
+                        "headline-sm": ["18px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "mono-data": ["13px", { "lineHeight": "1", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["11px", { "lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "1.4", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #020617; color: #e5e2e3; }
+        .tech-grid { display: grid; gap: 1px; background-color: #1e293b; border: 1px solid #1e293b; }
+        .tech-panel { background-color: #0f172a; padding: 16px; }
+        .data-row:not(:last-child) { border-bottom: 1px solid #1e293b; }
+        .map-container { border: 1px solid #e5e2e3; position: relative; }
+        .map-overlay { background-color: rgba(15, 23, 42, 0.8); }
+        .tab-btn.active { border-top: 1px solid #e5e2e3; background-color: #e5e2e3; color: #020617; }
+        .tab-btn { border-top: 1px solid transparent; }
+    </style>
+</head>
+<body class="font-body-md h-screen flex flex-col overflow-hidden">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-margin-desktop py-2 h-14 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant shrink-0">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-on-surface tracking-tight">OpenAgri Intelligence</span>
+<div class="h-6 w-px bg-outline-variant"></div>
+<nav class="flex gap-4">
+<a class="text-primary dark:text-primary font-bold border-b border-primary pb-1 flex flex-col" href="#">IIT Delhi Node</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-mono-data pb-1" href="#">Member: India</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="font-label-caps text-label-caps px-3 py-1.5 border border-border-subtle hover:bg-surface-container-high transition-colors">Language</button>
+<button class="font-label-caps text-label-caps bg-on-surface text-surface px-4 py-1.5 font-bold hover:opacity-90 transition-opacity">Export JSON-LD</button>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="flex flex-col h-screen border-r border-outline-variant bg-surface-container dark:bg-surface-container w-64 shrink-0">
+<div class="p-4 border-b border-outline-variant">
+<div class="font-headline-sm text-headline-sm text-on-surface mb-1">Command Center</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">BRICS Agricultural Node</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-2">
+<a class="flex items-center gap-3 px-4 py-3 bg-on-surface dark:bg-on-surface text-surface dark:text-surface font-bold border-r-2 border-primary font-label-caps text-label-caps transition-all duration-150 ease-linear" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span>
+                    Spatial Analysis
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps hover:bg-surface-container-highest transition-all duration-150 ease-linear" href="#">
+<span class="material-symbols-outlined">psychology</span>
+                    AI Advisory
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps hover:bg-surface-container-highest transition-all duration-150 ease-linear" href="#">
+<span class="material-symbols-outlined">database</span>
+                    Data Streams
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps hover:bg-surface-container-highest transition-all duration-150 ease-linear" href="#">
+<span class="material-symbols-outlined">description</span>
+                    Policy Reports
+                </a>
+</nav>
+<div class="p-4 border-t border-outline-variant">
+<button class="w-full font-label-caps text-label-caps bg-on-surface text-surface py-2 font-bold hover:opacity-90 transition-opacity">New Analysis</button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col p-unit overflow-hidden gap-unit bg-primary-container">
+<!-- KPI Row -->
+<div class="grid grid-cols-4 gap-unit shrink-0 h-24">
+<div class="tech-panel flex flex-col justify-between">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Total Reg. Field Area</div>
+<div class="flex items-end justify-between">
+<div class="font-display-lg text-display-lg text-on-surface">1.2M</div>
+<div class="font-mono-data text-mono-data text-trend-up mb-2">Hectares</div>
+</div>
+</div>
+<div class="tech-panel flex flex-col justify-between">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Active Disease Alerts</div>
+<div class="flex items-end justify-between">
+<div class="font-display-lg text-display-lg text-trend-down">14</div>
+<div class="font-mono-data text-mono-data text-trend-down mb-2">High Risk</div>
+</div>
+</div>
+<div class="tech-panel flex flex-col justify-between">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Avg Regional NDVI</div>
+<div class="flex items-end justify-between">
+<div class="font-display-lg text-display-lg text-on-surface">0.72</div>
+<div class="font-mono-data text-mono-data text-trend-up mb-2">+0.04 y/y</div>
+</div>
+</div>
+<div class="tech-panel flex flex-col justify-between">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Climate Adapt Index</div>
+<div class="flex items-end justify-between">
+<div class="font-display-lg text-display-lg text-on-surface">84<span class="text-on-surface-variant text-headline-sm">/100</span></div>
+<div class="font-mono-data text-mono-data text-trend-warn mb-2">Stable</div>
+</div>
+</div>
+</div>
+<!-- Main Layout: 60/40 Split -->
+<div class="flex-1 flex gap-unit overflow-hidden">
+<!-- Left: Map -->
+<div class="w-3/5 tech-panel p-0 map-container flex flex-col">
+<div class="absolute inset-0 bg-primary-container z-0" style="background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 20px 20px; opacity: 0.5;"></div>
+<!-- Hex Map Placeholder visually simulated -->
+<div class="absolute inset-0 z-0 flex items-center justify-center opacity-30">
+<div class="grid grid-cols-12 gap-1 w-full h-full p-8 rotate-12 scale-150">
+<!-- Just generating some fake hex grid structure purely in CSS -->
+<script>
+                                for(let i=0; i<150; i++) {
+                                    let bg = Math.random() > 0.8 ? '#ef4444' : (Math.random() > 0.4 ? '#10b981' : '#1e293b');
+                                    document.write(`<div style="background-color: ${bg}; aspect-ratio: 1; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); margin-top: ${i%2===0 ? '0' : '20px'}"></div>`);
+                                }
+                            </script>
+</div>
+</div>
+<div class="relative z-10 p-4 map-overlay m-4 border border-border-subtle backdrop-blur-sm self-start inline-block">
+<div class="font-label-caps text-label-caps text-on-surface mb-2">Spatial Grid: Madhya Pradesh Sector</div>
+<div class="flex gap-4 font-mono-data text-mono-data">
+<span class="flex items-center gap-1"><span class="w-2 h-2 bg-trend-up inline-block"></span> High Vigor (NDVI &gt; 0.8)</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 bg-trend-down inline-block"></span> Pathogen Stress</span>
+</div>
+</div>
+</div>
+<!-- Right: AI Advisory Feed -->
+<div class="w-2/5 flex flex-col gap-unit h-full">
+<div class="tech-panel flex-1 flex flex-col overflow-hidden">
+<div class="font-headline-sm text-headline-sm border-b border-border-subtle pb-2 mb-2 flex justify-between items-center shrink-0">
+<span>AI Advisory Trend Feed</span>
+<span class="material-symbols-outlined text-trend-up text-sm">wifi_tethering</span>
+</div>
+<div class="overflow-y-auto flex-1 font-body-sm text-body-sm pr-2">
+<div class="data-row py-3 flex flex-col gap-1">
+<div class="flex justify-between font-mono-data text-mono-data text-on-surface-variant">
+<span>QRY-902A // Bhopal</span>
+<span>Just now</span>
+</div>
+<div class="font-bold text-trend-down">Wheat Rust Detected in Sector 4</div>
+<div class="text-on-surface-variant">Anonymized query pattern indicates 40% spike in rust pathology searches.</div>
+</div>
+<div class="data-row py-3 flex flex-col gap-1">
+<div class="flex justify-between font-mono-data text-mono-data text-on-surface-variant">
+<span>REC-IIFSR-22 // System</span>
+<span>-12m</span>
+</div>
+<div class="font-bold text-trend-up">Regenerative Intervention Advised</div>
+<div class="text-on-surface-variant">Deploy targeted bio-fungicide protocols; reduce synthetic nitrogen application by 15% in affected grid.</div>
+</div>
+<div class="data-row py-3 flex flex-col gap-1">
+<div class="flex justify-between font-mono-data text-mono-data text-on-surface-variant">
+<span>QRY-881B // Indore</span>
+<span>-45m</span>
+</div>
+<div class="font-bold text-on-surface">Soil Moisture Deficit Warning</div>
+<div class="text-on-surface-variant">Evapotranspiration rates exceeding historical average. Recommend drip irrigation schedule adjustment.</div>
+</div>
+<div class="data-row py-3 flex flex-col gap-1">
+<div class="flex justify-between font-mono-data text-mono-data text-on-surface-variant">
+<span>REC-IIFSR-21 // System</span>
+<span>-1h</span>
+</div>
+<div class="font-bold text-trend-up">Cover Crop Planting Window</div>
+<div class="text-on-surface-variant">Optimal conditions for Legume cover crop insertion identified in harvested sectors.</div>
+</div>
+</div>
+</div>
+<!-- Bottom Tabbed Filter Panel -->
+<div class="tech-panel shrink-0 h-48 flex flex-col p-0 border border-border-subtle">
+<div class="flex border-b border-border-subtle bg-[#020617] shrink-0">
+<button class="tab-btn active font-label-caps text-label-caps px-4 py-2 uppercase">Copernicus Sentinel-2</button>
+<button class="tab-btn font-label-caps text-label-caps px-4 py-2 uppercase text-on-surface-variant">Open-Meteo Trends</button>
+<button class="tab-btn font-label-caps text-label-caps px-4 py-2 uppercase text-on-surface-variant">Regional Inputs</button>
+</div>
+<div class="p-4 flex-1 flex flex-col gap-2 justify-center bg-[#0f172a]">
+<div class="flex justify-between items-center border-b border-border-subtle pb-2">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Last Pass (L2A Cloud Free)</span>
+<span class="font-mono-data text-mono-data">2023-10-24 10:30 UTC</span>
+</div>
+<div class="flex justify-between items-center border-b border-border-subtle pb-2">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Band 8 (NIR) Reflectance Avg</span>
+<span class="font-mono-data text-mono-data">0.45 ± 0.02</span>
+</div>
+<div class="flex justify-between items-center border-b border-border-subtle pb-2">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Band 4 (Red) Reflectance Avg</span>
+<span class="font-mono-data text-mono-data">0.12 ± 0.01</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="flex justify-between items-center w-full px-margin-desktop py-1 h-8 bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant dark:border-outline-variant shrink-0 z-50">
+<div class="font-label-caps text-label-caps text-on-tertiary-container">OpenAgri Protocol v4.2 | BRICS Climate Taskforce</div>
+<nav class="flex gap-4">
+<a class="text-on-surface-variant dark:text-on-surface-variant font-mono-data text-mono-data hover:text-primary dark:hover:text-primary transition-colors" href="#">Sentinel-2</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-mono-data text-mono-data hover:text-primary dark:hover:text-primary transition-colors" href="#">Open-Meteo</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-mono-data text-mono-data hover:text-primary dark:hover:text-primary transition-colors" href="#">Crop Stocks</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-mono-data text-mono-data hover:text-primary dark:hover:text-primary transition-colors" href="#">API Docs</a>
+</nav>
+</footer>
+</body></html>
