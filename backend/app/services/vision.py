@@ -1,8 +1,13 @@
 import io
-from PIL import Image
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
 
 def strip_exif(image_bytes: bytes) -> bytes:
     """Strip EXIF metadata from the image to anonymize GPS/Camera details."""
+    if not image_bytes or Image is None:
+        return image_bytes
     try:
         img = Image.open(io.BytesIO(image_bytes))
         data = list(img.getdata())
@@ -11,9 +16,9 @@ def strip_exif(image_bytes: bytes) -> bytes:
         out = io.BytesIO()
         image_without_exif.save(out, format="JPEG")
         return out.getvalue()
-    except Exception as e:
-        # Fallback to original bytes if stripping fails
+    except Exception:
         return image_bytes
+
 
 def predict_disease(image_bytes: bytes) -> dict:
     """Mock function simulating an ONNX EfficientNet-B2 model inference."""
