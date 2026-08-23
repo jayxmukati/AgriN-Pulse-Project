@@ -6,11 +6,17 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
+    ffmpeg \
+    libsndfile1 \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Download a generic ONNX model as a placeholder for the vision service
+RUN wget https://github.com/onnx/models/raw/main/validated/vision/classification/mobilenet/model/mobilenetv2-7.onnx -O /app/model.onnx
 
 COPY . .
 
