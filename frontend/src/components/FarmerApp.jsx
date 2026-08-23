@@ -123,7 +123,7 @@ export default function FarmerApp() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-on-surface font-body-md pb-24">
+    <div className="w-full relative z-10 text-white font-body-md pb-24">
       {/* Hidden File Input */}
       <input
         type="file"
@@ -134,41 +134,47 @@ export default function FarmerApp() {
         className="hidden"
       />
 
-      {/* Sync Status Banner */}
-      <div className="fixed top-0 w-full h-[40px] bg-surface-container-high flex items-center justify-between px-4 z-[60] text-xs">
-        <div className="flex items-center gap-1.5 text-on-surface-variant font-label-sm">
-          <span className="material-symbols-outlined text-[16px] text-primary animate-spin" style={{ animationDuration: '6s' }}>sync</span>
-          <span>Synced {lastSyncTime}</span>
+      {/* Landing Section */}
+      <section className="min-h-screen flex flex-col items-center justify-center text-center px-4 -mt-20">
+        <h1 className="text-6xl sm:text-8xl font-bold tracking-tighter mb-4 drop-shadow-2xl">
+          Glowinn <span className="font-light italic text-green-400">Agri</span>
+        </h1>
+        <p className="text-lg sm:text-xl font-medium text-white/80 max-w-md mx-auto leading-relaxed mb-16">
+          Made for Modern Elegance.<br/>
+          Engineered for Regenerative Agriculture.
+        </p>
+        
+        <div className="absolute bottom-10 flex flex-col items-center animate-bounce opacity-70">
+          <span className="text-xs font-bold tracking-widest uppercase mb-2">Scroll to Explore</span>
+          <span className="material-symbols-outlined text-3xl">keyboard_arrow_down</span>
         </div>
-        <div className="flex items-center gap-1 font-label-sm text-primary font-bold">
-          <span className="w-2 h-2 rounded-full bg-trend-up"></span>
-          <span>PWA Ready</span>
-        </div>
-      </div>
+      </section>
 
-      {/* Header */}
-      <header className="fixed top-[40px] w-full z-50 bg-surface/95 backdrop-blur-sm flex justify-between items-center px-4 h-14 border-b border-surface-container-high shadow-sm">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-          <span className="material-symbols-outlined text-primary text-[28px] icon-filled">agriculture</span>
-          <div>
-            <h1 className="font-headline-md text-[18px] font-bold text-primary leading-tight">AgriSafe</h1>
-            <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">BRICS Pulse Node</p>
+      {/* Top App Bar */}
+      <header className="sticky top-4 z-40 px-4 py-3 glass-panel mb-6 flex items-center justify-between mt-4">
+        <div className="flex flex-col">
+          <div className="flex items-center gap-1.5 text-xs text-white/70 font-medium">
+            <span className="material-symbols-outlined text-[14px]">sync</span>
+            Synced {lastSyncTime}
           </div>
         </div>
-
-        {/* Language Dropdown */}
-        <div className="relative">
-          <button
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 text-[11px] font-bold tracking-wider text-green-300">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+            PWA Ready
+          </div>
+          <button 
             onClick={() => setShowLangMenu(!showLangMenu)}
-            className="flex items-center gap-1 hover:bg-surface-container-high px-3 py-1.5 rounded-full text-on-surface-variant border border-outline-variant text-xs font-semibold active:scale-95 transition-all"
+            className="flex items-center gap-1 text-xs border border-white/20 rounded-full px-3 py-1 hover:bg-white/10 transition-colors"
           >
-            <span className="material-symbols-outlined text-[16px]">translate</span>
-            <span>{selectedLang}</span>
+            translate
+            <span className="font-bold">{selectedLang}</span>
             <span className="material-symbols-outlined text-[16px]">expand_more</span>
           </button>
-
-          {showLangMenu && (
-            <div className="absolute right-0 mt-2 w-44 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg py-1.5 z-50">
+        </div>
+        
+        {showLangMenu && (
+            <div className="absolute top-16 right-4 w-44 glass-panel border border-white/10 rounded-xl shadow-lg py-1.5 z-50">
               {languages.map((l) => (
                 <button
                   key={l.code}
@@ -176,154 +182,116 @@ export default function FarmerApp() {
                     setSelectedLang(l.name);
                     setShowLangMenu(false);
                   }}
-                  className={`w-full text-left px-4 py-2 text-xs hover:bg-surface-container-high flex items-center justify-between ${
-                    selectedLang.includes(l.name) ? 'font-bold text-primary bg-primary-fixed/20' : 'text-on-surface'
+                  className={`w-full text-left px-4 py-2 text-xs hover:bg-white/10 flex items-center justify-between ${
+                    selectedLang.includes(l.name) ? 'font-bold text-green-300' : 'text-white'
                   }`}
                 >
                   <span>{l.name}</span>
-                  {selectedLang.includes(l.name) && (
-                    <span className="material-symbols-outlined text-[16px] text-primary">check</span>
-                  )}
                 </button>
               ))}
             </div>
           )}
-        </div>
       </header>
 
-      {/* Main Content */}
-      <main className="pt-[104px] px-4 max-w-[600px] mx-auto space-y-6">
-
-        {/* Quick Action Grid */}
-        <section className="grid grid-cols-2 gap-3.5">
-          <button
+      {/* Main Content Area */}
+      <main className="flex flex-col gap-4 mt-2">
+        {/* Quick Action Tiles */}
+        <div className="grid grid-cols-2 gap-3">
+          <button 
             onClick={handleScanTrigger}
-            className="bg-primary hover:bg-primary-container text-on-primary rounded-2xl p-4 flex flex-col items-center justify-center gap-2.5 h-[126px] shadow-md active:scale-95 transition-all cursor-pointer group"
+            className="card flex flex-col items-center justify-center p-5 cursor-pointer hover:bg-white/10 transition-colors"
           >
-            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined text-[28px] icon-filled">photo_camera</span>
-            </div>
-            <span className="font-label-lg text-sm text-center font-bold leading-tight">Scan Leaf<br />Disease</span>
+            <span className="material-symbols-outlined text-4xl mb-2 text-white">photo_camera</span>
+            <span className="font-bold text-sm text-center">Scan Leaf<br/>Disease</span>
           </button>
-
-          <button
+          
+          <button 
             onClick={() => {
               setShowVoiceModal(true);
               setVoiceAdvisoryResponse(null);
             }}
-            className="bg-surface-container-lowest border-2 border-primary text-primary hover:bg-primary-fixed/20 rounded-2xl p-4 flex flex-col items-center justify-center gap-2.5 h-[126px] shadow-sm active:scale-95 transition-all cursor-pointer group"
+            className="card flex flex-col items-center justify-center p-5 cursor-pointer hover:bg-white/10 transition-colors"
           >
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined text-[28px]">mic</span>
-            </div>
-            <span className="font-label-lg text-sm text-center font-bold leading-tight">Ask Voice<br />Advisory</span>
+            <span className="material-symbols-outlined text-4xl mb-2 text-white">mic</span>
+            <span className="font-bold text-sm text-center">Ask Voice<br/>Advisory</span>
           </button>
-        </section>
+        </div>
 
-        {/* Field Status Card */}
-        <section className="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant overflow-hidden">
-          <div className="p-4 border-b border-surface-container-low flex justify-between items-center bg-surface-container-lowest">
-            <div>
-              <h2 className="font-headline-sm text-base font-bold text-on-surface">Field Status & Telemetry</h2>
-              <p className="text-xs text-on-surface-variant">Sentinel-2 High-Resolution Pass</p>
+        {/* Field Status */}
+        <section className="card p-0 overflow-hidden mt-2">
+          <div className="p-4">
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <h2 className="font-bold text-base flex items-center gap-2">Field Status & Telemetry</h2>
+                <p className="text-[11px] text-white/70">Sentinel-2 High-Resolution Pass</p>
+              </div>
+              <button 
+                onClick={() => navigate('/dashboard')}
+                className="text-xs font-bold flex items-center hover:bg-white/10 px-2 py-1 rounded cursor-pointer"
+              >
+                Command Center <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+              </button>
             </div>
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="text-primary font-label-lg text-xs font-bold flex items-center hover:underline cursor-pointer"
-            >
-              Command Center <span className="material-symbols-outlined text-[16px] ml-0.5">chevron_right</span>
-            </button>
           </div>
 
-          <div className="relative w-full h-[210px] bg-surface-variant overflow-hidden">
+          <div className="relative w-full h-[210px] bg-black/20 overflow-hidden">
             <img
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover opacity-60"
               alt="Satellite view of farm plots"
               src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80"
             />
-            {/* Live NDVI Overlay Indicator */}
-            <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md rounded-lg px-2.5 py-1 text-white text-[11px] font-mono flex items-center gap-1.5 border border-white/20">
-              <span className="w-2 h-2 rounded-full bg-trend-up animate-pulse"></span>
+            <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-md rounded-lg px-2.5 py-1 text-white text-[11px] font-mono flex items-center gap-1.5 border border-white/10">
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
               <span>GEO-8860144 // Plot A</span>
             </div>
-
-            <div className="absolute bottom-3 left-3 right-3 bg-surface-container-lowest/95 backdrop-blur-sm rounded-xl p-3 shadow-md flex justify-between items-center border border-outline-variant">
-              <div>
-                <p className="font-label-sm text-xs text-on-surface-variant">Active Sector: North Plot</p>
-                <p className="font-headline-sm text-base font-bold text-on-surface">Vegetation Index: 0.72 NDVI</p>
-              </div>
-              <div className="bg-primary-fixed text-on-primary-fixed px-3 py-1 rounded-full font-label-sm text-xs font-semibold flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px]">check_circle</span> Healthy
-              </div>
-            </div>
           </div>
         </section>
 
-        {/* Micro-Climate & Agro-Weather */}
-        <section className="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant p-4">
-          <div className="flex justify-between items-center mb-3.5">
+        {/* Micro-Climate Forecast */}
+        <section className="card p-4">
+          <div className="flex justify-between items-start mb-4">
             <div>
-              <h2 className="font-headline-sm text-base font-bold text-on-surface">Micro-Climate Forecast</h2>
-              <p className="text-xs text-on-surface-variant">Open-Meteo Agro Forecast Node</p>
+              <h2 className="font-bold text-base flex items-center gap-2">Micro-Climate Forecast</h2>
+              <p className="text-[11px] text-white/70">Open-Meteo Agro Forecast Node</p>
             </div>
-            <span className="material-symbols-outlined text-primary">thermostat</span>
+            <span className="material-symbols-outlined text-2xl text-white/70">thermostat</span>
           </div>
 
-          <div className="flex overflow-x-auto no-scrollbar gap-3 pb-1">
-            <div className="flex flex-col items-center min-w-[76px] bg-primary-fixed/20 rounded-xl p-3 border border-primary/30">
-              <span className="font-label-sm text-[11px] text-primary font-bold mb-1">Today</span>
-              <span className="material-symbols-outlined text-secondary text-[24px] mb-1">wb_sunny</span>
-              <span className="font-headline-sm text-sm font-bold text-on-surface">28°C</span>
-              <div className="mt-2 text-center text-[10px] space-y-0.5">
-                <span className="font-semibold text-primary block">Soil: 42%</span>
-                <span className="text-on-surface-variant block">THI: Low</span>
+          <div className="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
+            {[
+              { time: 'Now', temp: '32°', icon: 'sunny', desc: 'High UV', alert: true },
+              { time: '14:00', temp: '34°', icon: 'partly_cloudy_day', desc: 'Heat Stress' },
+              { time: '17:00', temp: '29°', icon: 'cloud', desc: 'Cooling' },
+              { time: '20:00', temp: '24°', icon: 'clear_night', desc: 'Clear' },
+            ].map((forecast, i) => (
+              <div key={i} className={`flex-shrink-0 w-20 p-2.5 rounded-xl border flex flex-col items-center ${
+                forecast.alert 
+                  ? 'border-red-400/50 bg-red-900/30 text-white' 
+                  : 'border-white/10 bg-black/20 text-white'
+              }`}>
+                <span className="text-[11px] font-medium opacity-80">{forecast.time}</span>
+                <span className={`material-symbols-outlined text-2xl my-1.5 ${forecast.alert ? 'text-red-300 icon-filled animate-pulse' : ''}`}>
+                  {forecast.icon}
+                </span>
+                <span className="text-sm font-bold">{forecast.temp}</span>
+                <span className="text-[9px] text-center mt-1 font-medium opacity-70 leading-tight">{forecast.desc}</span>
               </div>
-            </div>
-
-            <div className="flex flex-col items-center min-w-[76px] bg-surface-container-low rounded-xl p-3 border border-outline-variant">
-              <span className="font-label-sm text-[11px] text-on-surface-variant mb-1">Tomorrow</span>
-              <span className="material-symbols-outlined text-secondary text-[24px] mb-1">partly_cloudy_day</span>
-              <span className="font-headline-sm text-sm font-bold text-on-surface">26°C</span>
-              <div className="mt-2 text-center text-[10px] space-y-0.5">
-                <span className="font-semibold text-primary block">Soil: 38%</span>
-                <span className="text-on-surface-variant block">THI: Low</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center min-w-[76px] bg-surface-container-low rounded-xl p-3 border border-outline-variant">
-              <span className="font-label-sm text-[11px] text-on-surface-variant mb-1">Wednesday</span>
-              <span className="material-symbols-outlined text-primary text-[24px] mb-1">rainy</span>
-              <span className="font-headline-sm text-sm font-bold text-on-surface">24°C</span>
-              <div className="mt-2 text-center text-[10px] space-y-0.5">
-                <span className="font-semibold text-primary block">Soil: 55%</span>
-                <span className="text-on-surface-variant block">THI: Low</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center min-w-[76px] bg-surface-container-low rounded-xl p-3 border border-outline-variant">
-              <span className="font-label-sm text-[11px] text-on-surface-variant mb-1">Thursday</span>
-              <span className="material-symbols-outlined text-trend-warn text-[24px] mb-1">wb_sunny</span>
-              <span className="font-headline-sm text-sm font-bold text-on-surface">31°C</span>
-              <div className="mt-2 text-center text-[10px] space-y-0.5">
-                <span className="font-semibold text-error block">Soil: 20%</span>
-                <span className="text-error font-bold block">THI: High</span>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* Regenerative Advisory Highlights */}
-        <section className="bg-gradient-to-br from-primary-fixed/30 to-surface-container-low border border-primary/20 rounded-2xl p-4">
+        {/* Actionable Advisory */}
+        <section className="card p-4 border-l-4 border-l-green-400">
           <div className="flex items-start gap-3">
-            <span className="material-symbols-outlined text-primary text-[28px] icon-filled mt-0.5">eco</span>
+            <span className="material-symbols-outlined text-[28px] icon-filled mt-0.5 text-green-300">eco</span>
             <div>
-              <h3 className="font-bold text-sm text-primary">Regenerative Protocol Tip</h3>
-              <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
+              <h3 className="font-bold text-sm">Regenerative Protocol Tip</h3>
+              <p className="text-xs text-white/80 mt-1 leading-relaxed">
                 High temperature forecast for Thursday. Apply organic mulch or biochar in tree/crop rows to conserve soil moisture by up to 35%.
               </p>
               <button
                 onClick={() => navigate('/diagnose')}
-                className="mt-2.5 text-xs font-bold text-primary flex items-center gap-1 hover:underline cursor-pointer"
+                className="mt-2.5 text-xs font-bold flex items-center gap-1 hover:underline cursor-pointer"
               >
                 View Standard Protocols <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
               </button>
@@ -347,15 +315,15 @@ export default function FarmerApp() {
       {/* Voice Advisory Modal */}
       {showVoiceModal && (
         <div className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="bg-surface-container-lowest w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl border border-outline-variant max-h-[85vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-surface-container-low pb-3">
+          <div className="glass-panel w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary icon-filled">psychology</span>
-                <h3 className="font-bold text-base text-on-surface">Voice Agricultural Advisory</h3>
+                <span className="material-symbols-outlined text-green-300 icon-filled">psychology</span>
+                <h3 className="font-bold text-base text-white">Voice Agricultural Advisory</h3>
               </div>
               <button
                 onClick={() => setShowVoiceModal(false)}
-                className="text-on-surface-variant hover:bg-surface-container-high rounded-full p-1 cursor-pointer"
+                className="text-white/60 hover:bg-white/10 rounded-full p-1 cursor-pointer transition-colors"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
@@ -373,13 +341,13 @@ export default function FarmerApp() {
                 }}
                 className={`w-20 h-20 rounded-full flex items-center justify-center transition-all ${
                   isRecording
-                    ? 'bg-error text-white animate-pulse ring-8 ring-error/20'
-                    : 'bg-primary text-white shadow-lg active:scale-95'
+                    ? 'bg-red-500 text-white animate-pulse ring-8 ring-red-500/20'
+                    : 'bg-green-400 text-black shadow-lg active:scale-95'
                 }`}
               >
                 <span className="material-symbols-outlined text-3xl">{isRecording ? 'graphic_eq' : 'mic'}</span>
               </button>
-              <p className="text-xs font-semibold mt-3 text-on-surface-variant">
+              <p className="text-xs font-semibold mt-3 text-white/70">
                 {isRecording ? 'Listening... Speak your crop question' : 'Tap mic to speak or select a quick prompt below'}
               </p>
             </div>
@@ -394,7 +362,7 @@ export default function FarmerApp() {
                 <button
                   key={idx}
                   onClick={() => handleVoiceSubmit(query)}
-                  className="text-xs bg-surface-container-low hover:bg-primary-fixed/20 text-on-surface px-3 py-1.5 rounded-full border border-outline-variant transition-colors"
+                  className="text-xs bg-black/20 hover:bg-white/10 text-white px-3 py-1.5 rounded-full border border-white/20 transition-colors cursor-pointer"
                 >
                   "{query}"
                 </button>
@@ -403,19 +371,19 @@ export default function FarmerApp() {
 
             {/* Response Area */}
             {voiceAdvisoryResponse && (
-              <div className="mt-5 p-4 rounded-xl bg-primary-fixed/20 border border-primary/30 text-left">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-primary mb-1">
+              <div className="mt-5 p-4 rounded-xl bg-green-400/10 border border-green-400/30 text-left">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-green-300 mb-1">
                   <span className="material-symbols-outlined text-[16px]">verified</span>
                   <span>IIFSR Ground-Truth Advisory</span>
                 </div>
-                <p className="text-xs text-on-surface font-medium leading-relaxed">
+                <p className="text-xs text-white font-medium leading-relaxed">
                   {voiceAdvisoryResponse.advisory}
                 </p>
                 {voiceAdvisoryResponse.recommended_actions && (
-                  <ul className="mt-3 space-y-1.5 border-t border-primary/20 pt-2 text-[11px] text-on-surface-variant">
+                  <ul className="mt-3 space-y-1.5 border-t border-green-400/20 pt-2 text-[11px] text-white/80">
                     {voiceAdvisoryResponse.recommended_actions.map((act, i) => (
                       <li key={i} className="flex items-start gap-1.5">
-                        <span className="material-symbols-outlined text-[14px] text-primary mt-0.5">check_circle</span>
+                        <span className="material-symbols-outlined text-[14px] text-green-300 mt-0.5">check_circle</span>
                         <span>{act}</span>
                       </li>
                     ))}
@@ -427,45 +395,7 @@ export default function FarmerApp() {
         </div>
       )}
 
-      {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-2 bg-surface/95 backdrop-blur-md border-t border-outline-variant shadow-lg pb-safe">
-        <button
-          onClick={() => navigate('/')}
-          className="flex flex-col items-center justify-center text-primary p-1.5 rounded-xl cursor-pointer"
-        >
-          <div className="flex items-center justify-center bg-primary-fixed text-on-primary-fixed rounded-full px-4 py-1">
-            <span className="material-symbols-outlined text-[22px] icon-filled">home</span>
-          </div>
-          <span className="font-label-sm text-[11px] mt-1 font-bold">Home</span>
-        </button>
-
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary p-1.5 rounded-xl transition-colors cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[22px]">map</span>
-          <span className="font-label-sm text-[11px] mt-1">Fields</span>
-        </button>
-
-        <button
-          onClick={handleScanTrigger}
-          className="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary p-1.5 rounded-xl transition-colors cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[22px]">photo_camera</span>
-          <span className="font-label-sm text-[11px] mt-1">Scan</span>
-        </button>
-
-        <button
-          onClick={() => {
-            setShowVoiceModal(true);
-            setVoiceAdvisoryResponse(null);
-          }}
-          className="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary p-1.5 rounded-xl transition-colors cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[22px]">psychology</span>
-          <span className="font-label-sm text-[11px] mt-1">Advisories</span>
-        </button>
-      </nav>
+      {/* Bottom Navigation Bar is now removed as Layout handles navigation */}
     </div>
   );
 }

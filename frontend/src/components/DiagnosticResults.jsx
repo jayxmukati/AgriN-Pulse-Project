@@ -96,7 +96,7 @@ export default function DiagnosticResults() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-on-surface pb-16">
+    <div className="w-full relative z-10 text-white font-body-md pb-24">
       {/* Toast Notification */}
       {copiedToast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] bg-primary text-on-primary px-4 py-2 rounded-full shadow-lg text-xs font-bold flex items-center gap-1.5 animate-bounce">
@@ -105,104 +105,93 @@ export default function DiagnosticResults() {
         </div>
       )}
 
-      {/* Header */}
-      <header className="w-full top-0 sticky bg-surface/95 backdrop-blur-sm border-b border-outline-variant z-50">
-        <div className="flex items-center justify-between px-4 h-14 w-full max-w-2xl mx-auto">
-          <button
-            onClick={() => navigate('/')}
-            aria-label="Go back"
-            className="text-primary hover:bg-surface-container-high transition-colors p-2 rounded-full -ml-2 cursor-pointer active:scale-95"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <div className="flex flex-col items-center">
-            <h1 className="font-headline-sm text-base font-bold text-primary">Diagnostic Results</h1>
-            <span className="font-label-sm text-[10px] text-on-surface-variant flex items-center gap-1">
-              <span className="material-symbols-outlined text-[12px] text-primary">verified_user</span> GPS & Metadata Anonymized
-            </span>
-          </div>
-          <button
-            onClick={handleShare}
-            aria-label="Share"
-            className="text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-full -mr-2 cursor-pointer active:scale-95"
-          >
-            <span className="material-symbols-outlined">share</span>
-          </button>
+      {/* Main content wrapper */}
+      <main className="flex flex-col gap-5 mt-4">
+        {/* Back navigation */}
+        <div className="flex items-center gap-3 glass-panel px-4 py-2 w-fit cursor-pointer hover:bg-white/10 transition-colors" onClick={() => navigate(-1)}>
+          <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+          <span className="font-bold text-sm">Back</span>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="p-4 space-y-4 max-w-2xl mx-auto">
-        {/* Scanned Image Preview with Bounding Box */}
-        <section className="bg-surface-container-lowest border border-outline-variant rounded-2xl overflow-hidden shadow-sm relative">
-          <div className="h-52 w-full relative bg-surface-variant">
-            <img
-              alt="Scanned crop leaf"
-              className="w-full h-full object-cover"
-              src={previewUrl || "https://images.unsplash.com/photo-1592417817098-8f3d6910985b?auto=format&fit=crop&w=800&q=80"}
-            />
+        {/* Inference Status & Image */}
+        <section className="card p-0 overflow-hidden">
+          <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/20">
+            <div className="flex items-center gap-2 text-green-300 font-bold text-xs">
+              <span className="material-symbols-outlined icon-filled text-[16px]">check_circle</span>
+              High-Confidence Inference Complete
+            </div>
+            <span className="text-[10px] text-white/70 font-mono">{new Date().toLocaleTimeString()}</span>
+          </div>
 
-            {/* Pathogen Bounding Box Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-28 h-28 border-2 border-primary border-dashed rounded-lg relative bg-primary/10 backdrop-blur-[1px]">
-                <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-primary rounded-sm"></div>
-                <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-primary rounded-sm"></div>
-                <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-primary rounded-sm"></div>
-                <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-primary rounded-sm"></div>
-                <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-surface/90 text-primary font-label-sm text-[10px] font-bold px-2 py-0.5 rounded shadow-sm whitespace-nowrap border border-primary/30">
+          <div className="p-4 bg-black/10">
+            <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-white/20 shadow-inner bg-black/40">
+              <img
+                src={data.image_url || previewUrl || "https://images.unsplash.com/photo-1592417817098-8f3d6910985b?auto=format&fit=crop&w=800&q=80"}
+                alt="Analyzed crop pathology"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-primary-fixed/10 mix-blend-color-burn"></div>
+
+              {/* Bounding Box Simulation */}
+              <div className="absolute top-[20%] left-[25%] right-[30%] bottom-[15%] border-[1.5px] border-dashed border-green-400 bg-green-400/10">
+                <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-green-400 rounded-sm"></div>
+                <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-green-400 rounded-sm"></div>
+                <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-green-400 rounded-sm"></div>
+                <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-green-400 rounded-sm"></div>
+                <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-black/90 text-green-400 font-label-sm text-[10px] font-bold px-2 py-0.5 rounded shadow-sm whitespace-nowrap border border-green-400/30">
                   Detected Lesion Zone
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="p-3.5 flex justify-between items-center border-t-4 border-trend-warn bg-surface-container-lowest">
-            <span className="font-label-md text-xs text-trend-warn font-bold flex items-center gap-1.5">
+          <div className="p-3.5 flex justify-between items-center border-t-4 border-red-500 bg-black/20">
+            <span className="font-label-md text-xs text-red-400 font-bold flex items-center gap-1.5">
               <span className="material-symbols-outlined icon-filled text-[18px]">warning</span>
               Pathology Severity: {data.severity || 'Moderate'}
             </span>
-            <span className="font-mono text-xs text-on-surface-variant font-semibold">{data.scan_id}</span>
+            <span className="font-mono text-xs text-white/70 font-semibold">{data.scan_id}</span>
           </div>
         </section>
 
         {/* Primary Match Card */}
-        <section className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 shadow-sm">
+        <section className="card">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="font-headline-md text-xl font-bold text-on-surface">{data.disease_name}</h2>
-              <p className="font-body-md text-xs text-on-surface-variant italic mb-3">{data.scientific_name}</p>
+              <h2 className="font-headline-md text-xl font-bold">{data.disease_name}</h2>
+              <p className="font-body-md text-xs text-white/70 italic mb-3">{data.scientific_name}</p>
             </div>
-            <span className="bg-primary-fixed text-on-primary-fixed px-2.5 py-1 rounded-full text-xs font-bold">
+            <span className="bg-green-400/20 text-green-300 px-2.5 py-1 rounded-full text-xs font-bold border border-green-400/30">
               {Math.round(data.confidence * 100)}% Match
             </span>
           </div>
 
           <div className="space-y-1.5 mb-4">
             <div className="flex justify-between items-end text-xs">
-              <span className="font-label-md text-on-surface-variant">Primary Match Confidence</span>
-              <span className="font-mono text-primary font-bold">{Math.round(data.confidence * 100)}%</span>
+              <span className="font-label-md text-white/80">Primary Match Confidence</span>
+              <span className="font-mono text-green-400 font-bold">{Math.round(data.confidence * 100)}%</span>
             </div>
-            <div className="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary rounded-full transition-all duration-1000"
+                className="h-full bg-green-400 rounded-full transition-all duration-1000 shadow-[0_0_8px_#4ade80]"
                 style={{ width: `${Math.round(data.confidence * 100)}%` }}
               ></div>
             </div>
           </div>
 
           {data.alternatives && data.alternatives.length > 0 && (
-            <div className="border-t border-outline-variant pt-3">
-              <h3 className="font-label-sm text-[11px] text-on-surface-variant mb-2 uppercase tracking-wider font-semibold">
+            <div className="border-t border-white/10 pt-3">
+              <h3 className="font-label-sm text-[11px] text-white/60 mb-2 uppercase tracking-wider font-semibold">
                 Alternative Differential Matches
               </h3>
               <ul className="space-y-1.5">
                 {data.alternatives.map((alt, idx) => (
                   <li key={idx} className="flex items-center justify-between text-xs py-0.5">
-                    <span className="text-on-surface flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+                    <span className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white/30"></span>
                       {alt.disease_name}
                     </span>
-                    <span className="font-mono text-on-surface-variant">{Math.round(alt.confidence * 100)}%</span>
+                    <span className="font-mono text-white/60">{Math.round(alt.confidence * 100)}%</span>
                   </li>
                 ))}
               </ul>
@@ -212,19 +201,19 @@ export default function DiagnosticResults() {
 
         {/* Regenerative Treatment Plan */}
         <section className="space-y-2.5">
-          <h2 className="font-headline-sm text-base font-bold text-on-surface flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary icon-filled">eco</span>
+          <h2 className="font-headline-sm text-base font-bold flex items-center gap-2 text-green-300">
+            <span className="material-symbols-outlined icon-filled">eco</span>
             Regenerative Agro-Ecological Plan
           </h2>
 
-          <div className="border border-outline-variant rounded-2xl overflow-hidden bg-surface-container-lowest divide-y divide-outline-variant shadow-sm">
+          <div className="card p-0 overflow-hidden divide-y divide-white/10">
             <details className="group" open>
-              <summary className="flex justify-between items-center p-4 cursor-pointer font-label-md text-xs font-bold text-on-surface bg-surface-container-lowest hover:bg-surface-container-low transition-colors">
+              <summary className="flex justify-between items-center p-4 cursor-pointer font-label-md text-xs font-bold hover:bg-white/5 transition-colors">
                 <span>Natural & Bio-Fungicide Treatments</span>
-                <span className="material-symbols-outlined transition-transform group-open:rotate-180 text-on-surface-variant">expand_more</span>
+                <span className="material-symbols-outlined transition-transform group-open:rotate-180 text-white/50">expand_more</span>
               </summary>
-              <div className="px-4 pb-4 bg-surface-container-lowest">
-                <ul className="list-disc pl-4 space-y-2 text-xs text-on-surface-variant">
+              <div className="px-4 pb-4">
+                <ul className="list-disc pl-4 space-y-2 text-xs text-white/70">
                   {data.regenerative_plan?.treatments?.map((t, i) => (
                     <li key={i} className="leading-relaxed">{t}</li>
                   ))}
@@ -233,12 +222,12 @@ export default function DiagnosticResults() {
             </details>
 
             <details className="group">
-              <summary className="flex justify-between items-center p-4 cursor-pointer font-label-md text-xs font-bold text-on-surface bg-surface-container-lowest hover:bg-surface-container-low transition-colors">
+              <summary className="flex justify-between items-center p-4 cursor-pointer font-label-md text-xs font-bold hover:bg-white/5 transition-colors">
                 <span>Soil & Water Irrigation Rules</span>
-                <span className="material-symbols-outlined transition-transform group-open:rotate-180 text-on-surface-variant">expand_more</span>
+                <span className="material-symbols-outlined transition-transform group-open:rotate-180 text-white/50">expand_more</span>
               </summary>
-              <div className="px-4 pb-4 bg-surface-container-lowest">
-                <ul className="list-disc pl-4 space-y-2 text-xs text-on-surface-variant">
+              <div className="px-4 pb-4">
+                <ul className="list-disc pl-4 space-y-2 text-xs text-white/70">
                   {data.regenerative_plan?.management_rules?.map((m, i) => (
                     <li key={i} className="leading-relaxed">{m}</li>
                   ))}
@@ -250,11 +239,11 @@ export default function DiagnosticResults() {
 
         {/* Audio Advisory Player & Actions */}
         <section className="space-y-3 pt-2">
-          <div className="bg-surface-container-low border border-outline-variant rounded-2xl p-3.5 flex items-center gap-3.5 shadow-sm">
+          <div className="card p-3.5 flex items-center gap-3.5">
             <button
               onClick={toggleAudio}
               aria-label={isPlaying ? 'Pause audio advisory' : 'Play audio advisory'}
-              className="w-12 h-12 flex-shrink-0 bg-primary hover:bg-primary-container text-on-primary rounded-full flex items-center justify-center transition-transform active:scale-95 shadow cursor-pointer"
+              className="w-12 h-12 flex-shrink-0 bg-green-400/20 border border-green-400/50 hover:bg-green-400/40 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow cursor-pointer text-green-300"
             >
               <span className="material-symbols-outlined text-[28px] icon-filled">
                 {isPlaying ? 'pause' : 'play_arrow'}
@@ -262,15 +251,15 @@ export default function DiagnosticResults() {
             </button>
             <div className="flex-1 flex flex-col justify-center">
               <div className="flex justify-between items-center mb-1">
-                <span className="font-label-sm text-xs font-bold text-on-surface">Spoken Audio Advisory</span>
-                <span className="text-[10px] font-mono text-primary font-bold">
+                <span className="font-label-sm text-xs font-bold">Spoken Audio Advisory</span>
+                <span className="text-[10px] font-mono text-green-400 font-bold">
                   {isPlaying ? 'Speaking...' : 'Ready'}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-2 flex-1 bg-surface-container-highest rounded-full overflow-hidden">
+                <div className="h-2 flex-1 bg-white/10 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-primary rounded-full transition-all duration-300"
+                    className="h-full bg-green-400 rounded-full transition-all duration-300 shadow-[0_0_8px_#4ade80]"
                     style={{ width: `${playbackProgress}%` }}
                   ></div>
                 </div>
@@ -280,7 +269,7 @@ export default function DiagnosticResults() {
 
           <button
             onClick={handleShare}
-            className="w-full min-h-[48px] flex items-center justify-center gap-2 border border-outline-variant text-on-surface font-label-md text-xs font-bold rounded-2xl hover:bg-surface-container-low transition-colors bg-surface-container-lowest shadow-sm active:scale-98 cursor-pointer"
+            className="w-full btn btn--pearl min-h-[48px]"
           >
             <span className="material-symbols-outlined text-[18px]">share</span>
             Share with Regional Agricultural Extension Agent
