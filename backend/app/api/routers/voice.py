@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, File, UploadFile, Body
+from fastapi import APIRouter, File, UploadFile, Body, Form
 from app.services.voice import transcribe_audio
 
 router = APIRouter()
@@ -7,8 +7,8 @@ router = APIRouter()
 @router.post("/query")
 async def voice_query(
     audio: Optional[UploadFile] = File(None),
-    query_text: Optional[str] = Body(None, embed=True),
-    language: Optional[str] = Body("en", embed=True),
+    query_text: Optional[str] = Form(None),
+    language: Optional[str] = Form("en"),
 ):
     """
     Processes farmer spoken queries via OpenAI Whisper / audio transcription

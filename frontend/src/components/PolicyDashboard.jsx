@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Globe, CheckCircle2, Wifi, ArrowLeft, Share2 } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -98,7 +99,7 @@ export default function PolicyDashboard() {
       {/* Toast Notification */}
       {exportToast && (
         <div className="fixed top-4 right-4 z-[100] bg-green-400 text-black px-4 py-2 text-xs font-bold flex items-center gap-1.5 shadow-2xl border border-white rounded-md">
-          <span className="material-symbols-outlined text-[16px]">check_circle</span>
+          <CheckCircle2 className="w-5 h-5" />
           Exporting RDF (W3C JSON-LD)...
         </div>
       )}
@@ -113,10 +114,10 @@ export default function PolicyDashboard() {
               className="text-white/60 hover:text-white transition-colors cursor-pointer mr-2 flex items-center justify-center"
               title="Return to Farmer Interface"
             >
-              <span className="material-symbols-outlined">arrow_back</span>
+              <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-xl font-bold uppercase tracking-tight flex items-center gap-2">
-              <span className="material-symbols-outlined text-green-300">globe_asia</span>
+              <Globe className="w-5 h-5" />
               Policy Dashboard
             </h1>
             <span className="text-[10px] bg-green-400/20 text-green-300 px-2 py-0.5 border border-green-400/30">L2A Sentinel Data</span>
@@ -132,7 +133,7 @@ export default function PolicyDashboard() {
               disabled={isExporting}
               className="text-xs bg-white text-black px-4 py-1.5 font-bold hover:bg-gray-200 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-50"
             >
-              <span className="material-symbols-outlined text-[14px]">share</span>
+              <Share2 className="w-5 h-5" />
               <span>{isExporting ? 'Exporting...' : 'Export JSON-LD'}</span>
             </button>
           </div>
@@ -190,7 +191,7 @@ export default function PolicyDashboard() {
             <div className="card p-4 flex-1 flex flex-col overflow-hidden">
               <div className="text-xs font-bold border-b border-white/10 pb-2 mb-2 flex justify-between items-center shrink-0">
                 <span>AI Advisory Outbreak Feed</span>
-                <span className="material-symbols-outlined text-green-300 text-sm animate-pulse">wifi_tethering</span>
+                <Wifi className="w-5 h-5" />
               </div>
 
               <div className="overflow-y-auto flex-1 text-xs space-y-2.5 pr-1 no-scrollbar">

@@ -1,10 +1,27 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import LoginModal from './LoginModal';
+import { queueScan, getQueuedScans, clearQueuedScan } from '../lib/sync';
+import { ShieldCheck, BrainCircuit, CheckCircle2, Flower2, ChevronRight, FileText, Mic, ChevronDown, User, ArrowRight, Camera, Leaf, X, RefreshCw , Activity, CloudLightning, LineChart, Cpu, BookOpen } from 'lucide-react';
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function FarmerApp() {
+  const [lang, setLang] = useState('EN');
+
+  useEffect(() => {
+    const handleLang = (e) => setLang(e.detail);
+    window.addEventListener('languageChange', handleLang);
+    return () => window.removeEventListener('languageChange', handleLang);
+  }, []);
+
+  const heroTexts = {
+    EN: "Glowinn Agri",
+    HI: "ग्लोइन एग्री",
+    SW: "Glowinn Kilimo",
+    PT: "Glowinn Agro"
+  };
+
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -12,12 +29,55 @@ export default function FarmerApp() {
   const [isScanning, setIsScanning] = useState(false);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
   const [voiceQuery, setVoiceQuery] = useState('');
   const [voiceAdvisoryResponse, setVoiceAdvisoryResponse] = useState(null);
   const [selectedLang, setSelectedLang] = useState('English');
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState('Just now');
-
+  
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [news, setNews] = useState([]);
+  
+  useEffect(() => {
+    const token = localStorage.getItem('agrin_token');
+    if (token) setIsAuthenticated(true);
+    
+    // Fetch News
+    axios.get(`${API_BASE}/api/v1/news?limit=5`)
+      .then(res => setNews(res.data))
+      .catch(err => console.log('News fetch failed:', err));
+  }, []);
+  
+  const handleLoginSuccess = (token) => {
+    setIsAuthenticated(true);
+    setShowLoginModal(false);
+    processOfflineQueue();
+  };
+  
+  const processOfflineQueue = async () => {
+    try {
+      const scans = await getQueuedScans();
+      if (scans.length > 0) {
+          for (const scan of scans) {
+            const formData = new FormData();
+            formData.append('file', scan.file);
+            formData.append('lat', scan.lat);
+            formData.append('lon', scan.lon);
+            
+            await axios.post(`${API_BASE}/api/v1/diagnose/`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${localStorage.getItem('agrin_token')}` },
+            });
+            await clearQueuedScan(scan.id);
+          }
+          setLastSyncTime(new Date().toLocaleTimeString());
+      }
+    } catch (err) {
+      console.log('Sync failed', err);
+    }
+  };
   const languages = [
     { code: 'en', name: 'English' },
     { code: 'hi', name: 'हिन्दी (Hindi)' },
@@ -33,68 +93,19 @@ export default function FarmerApp() {
     }
   };
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const previewUrl = URL.createObjectURL(file);
-    setIsScanning(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('lat', '23.2599');
-      formData.append('lon', '77.4126');
-
-      const response = await axios.post(`${API_BASE}/api/v1/diagnose/`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 5000
-      });
-
-      navigate('/diagnose', {
-        state: {
-          diagnosis: response.data,
-          previewUrl: previewUrl
-        }
-      });
-    } catch (err) {
-      console.warn('Backend unavailable, using simulated offline diagnosis:', err);
-      setTimeout(() => {
-        navigate('/diagnose', {
-          state: {
-            previewUrl: previewUrl,
-            diagnosis: {
-              scan_id: `SCAN-${Math.floor(1000 + Math.random() * 9000)}`,
-              disease_name: 'Tomato Early Blight',
-              scientific_name: 'Alternaria solani',
-              confidence: 0.94,
-              severity: 'Moderate',
-              severity_color: 'tertiary',
-              privacy_status: 'GPS & EXIF stripped. Mapped to H3 Hex Geo-ID: GEO-8860144aa7fffff',
-              alternatives: [
-                { disease_name: 'Septoria Leaf Spot', confidence: 0.12 },
-                { disease_name: 'Late Blight', confidence: 0.04 }
-              ],
-              regenerative_plan: {
-                treatments: [
-                  'Apply Bio-fungicide sprays (Bacillus subtilis based) immediately to surrounding healthy foliage.',
-                  'Use Neem oil (2 tbsp / gallon) applied weekly in early morning or late evening.',
-                  'Prune and securely discard infected lower leaves to limit spore spread.'
-                ],
-                management_rules: [
-                  'Adjust irrigation: Switch entirely to drip irrigation to keep leaf canopies dry.',
-                  'Increase plant spacing to minimum 24 inches for optimal airflow.',
-                  'Apply organic mulch (straw/leaves) to prevent soil-borne spore splashes.'
-                ]
-              },
-              audio_script: 'Diagnostic complete for tomato crop. Early Blight detected at 94 percent confidence. Deploy Bacillus bio-fungicide and transition to drip irrigation immediately.'
-            }
-          }
-        });
-      }, 1500);
-    } finally {
-      setIsScanning(false);
-    }
+    
+    // Navigate immediately to DiagnosticResults to handle the progressive stepper
+    navigate('/diagnose', {
+      state: {
+        file: file,
+        previewUrl: previewUrl
+      }
+    });
   };
 
   // Voice Advisory Handler
@@ -122,6 +133,61 @@ export default function FarmerApp() {
     }
   };
 
+  const toggleRecording = async () => {
+    if (isRecording) {
+      // Stop recording
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop();
+      }
+      setIsRecording(false);
+    } else {
+      // Start recording
+      setVoiceAdvisoryResponse(null);
+      audioChunksRef.current = [];
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+        
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
+        
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          const formData = new FormData();
+          formData.append('audio', audioBlob, 'recording.webm');
+          formData.append('language', selectedLang);
+          
+          try {
+            const res = await axios.post(`${API_BASE}/api/v1/voice/query`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setVoiceAdvisoryResponse(res.data);
+          } catch (err) {
+            console.error('Audio submission failed', err);
+            // Fallback for demo
+            setVoiceAdvisoryResponse({
+              transcription: "Live audio recorded (fallback)",
+              advisory: "Audio processing failed. Please check network or microphone permissions.",
+              recommended_actions: []
+            });
+          }
+          
+          // Stop all tracks
+          stream.getTracks().forEach(track => track.stop());
+        };
+        
+        mediaRecorder.start();
+        setIsRecording(true);
+      } catch (err) {
+        console.error("Microphone access denied:", err);
+      }
+    }
+  };
+
   return (
     <div className="w-full relative z-10 text-white font-body-md pb-24">
       {/* Hidden File Input */}
@@ -146,7 +212,7 @@ export default function FarmerApp() {
         
         <div className="absolute bottom-10 flex flex-col items-center animate-bounce opacity-70">
           <span className="text-xs font-bold tracking-widest uppercase mb-2">Scroll to Explore</span>
-          <span className="material-symbols-outlined text-3xl">keyboard_arrow_down</span>
+          <ChevronDown className="w-5 h-5" />
         </div>
       </section>
 
@@ -154,7 +220,7 @@ export default function FarmerApp() {
       <header className="sticky top-4 z-40 px-4 py-3 glass-panel mb-6 flex items-center justify-between mt-4">
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5 text-xs text-white/70 font-medium">
-            <span className="material-symbols-outlined text-[14px]">sync</span>
+            <RefreshCw className="w-5 h-5" />
             Synced {lastSyncTime}
           </div>
         </div>
@@ -163,13 +229,25 @@ export default function FarmerApp() {
             <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
             PWA Ready
           </div>
+          {!isAuthenticated ? (
+            <button 
+              onClick={() => setShowLoginModal(true)}
+              className="text-[11px] font-bold bg-white/10 border border-white/20 rounded-full px-3 py-1 hover:bg-white/20 transition-colors cursor-pointer"
+            >
+              Sign In
+            </button>
+          ) : (
+            <div className="w-6 h-6 rounded-full bg-green-500/20 border border-green-500/50 flex items-center justify-center">
+              <User className="w-5 h-5" />
+            </div>
+          )}
           <button 
             onClick={() => setShowLangMenu(!showLangMenu)}
             className="flex items-center gap-1 text-xs border border-white/20 rounded-full px-3 py-1 hover:bg-white/10 transition-colors"
           >
             translate
             <span className="font-bold">{selectedLang}</span>
-            <span className="material-symbols-outlined text-[16px]">expand_more</span>
+            <ChevronDown className="w-5 h-5" />
           </button>
         </div>
         
@@ -195,14 +273,16 @@ export default function FarmerApp() {
 
       {/* Main Content Area */}
       <main className="flex flex-col gap-4 mt-2">
-        {/* Quick Action Tiles */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Massive Primary CTA Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 mb-8">
           <button 
             onClick={handleScanTrigger}
-            className="card flex flex-col items-center justify-center p-5 cursor-pointer hover:bg-white/10 transition-colors"
+            className="glass-panel group relative overflow-hidden flex flex-col items-center justify-center p-10 cursor-pointer hover:bg-white/10 transition-all border border-green-500/30 hover:border-green-400 hover:shadow-[0_0_30px_rgba(74,222,128,0.2)]"
           >
-            <span className="material-symbols-outlined text-4xl mb-2 text-white">photo_camera</span>
-            <span className="font-bold text-sm text-center">Scan Leaf<br/>Disease</span>
+            <div className="absolute inset-0 bg-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Camera className="w-16 h-16 text-green-400 mb-4 animate-pulse drop-shadow-[0_0_15px_rgba(74,222,128,0.5)]" />
+            <span className="font-bold text-2xl tracking-tight text-white z-10">Scan Leaf Disease</span>
+            <span className="text-xs text-white/60 mt-2 z-10">Run local ONNX AI Inference</span>
           </button>
           
           <button 
@@ -210,101 +290,188 @@ export default function FarmerApp() {
               setShowVoiceModal(true);
               setVoiceAdvisoryResponse(null);
             }}
-            className="card flex flex-col items-center justify-center p-5 cursor-pointer hover:bg-white/10 transition-colors"
+            className="glass-panel group relative overflow-hidden flex flex-col items-center justify-center p-10 cursor-pointer hover:bg-white/10 transition-all border border-amber-500/30 hover:border-amber-400 hover:shadow-[0_0_30px_rgba(251,191,36,0.2)]"
           >
-            <span className="material-symbols-outlined text-4xl mb-2 text-white">mic</span>
-            <span className="font-bold text-sm text-center">Ask Voice<br/>Advisory</span>
+            <div className="absolute inset-0 bg-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Mic className="w-16 h-16 text-amber-400 mb-4 drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]" />
+            <span className="font-bold text-2xl tracking-tight text-white z-10">Voice Advisory</span>
+            <span className="text-xs text-white/60 mt-2 z-10">Ask agronomic questions in local dialect</span>
           </button>
         </div>
 
-        {/* Field Status */}
-        <section className="card p-0 overflow-hidden mt-2">
-          <div className="p-4">
-            <div className="flex justify-between items-start mb-3">
+        {/* Density Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Field Status */}
+          <section className="card p-0 overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-white/5">
+              <div className="flex justify-between items-start mb-1">
+                <div>
+                  <h2 className="font-bold text-base flex items-center gap-2">Field Status</h2>
+                  <p className="text-[11px] text-white/70">Sentinel-2 Pass</p>
+                </div>
+                <button 
+                  onClick={() => navigate('/dashboard')}
+                  className="text-xs font-bold flex items-center hover:bg-white/10 px-2 py-1 rounded cursor-pointer"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="relative w-full flex-grow min-h-[150px] bg-black/20 overflow-hidden">
+              <img
+                className="w-full h-full object-cover opacity-60"
+                alt="Satellite view of farm plots"
+                src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80"
+              />
+              <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-md rounded-lg px-2.5 py-1 text-white text-[11px] font-mono flex items-center gap-1.5 border border-white/10">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                <span>GEO-8860144</span>
+              </div>
+            </div>
+          </section>
+
+          {/* News & Intelligence Carousel */}
+          <section className="card p-4 flex flex-col h-full">
+            <div className="flex justify-between items-start mb-4">
               <div>
-                <h2 className="font-bold text-base flex items-center gap-2">Field Status & Telemetry</h2>
-                <p className="text-[11px] text-white/70">Sentinel-2 High-Resolution Pass</p>
+                <h2 className="font-bold text-base flex items-center gap-2">Agri Intelligence</h2>
+                <p className="text-[11px] text-white/70">Curated by AI</p>
               </div>
-              <button 
-                onClick={() => navigate('/dashboard')}
-                className="text-xs font-bold flex items-center hover:bg-white/10 px-2 py-1 rounded cursor-pointer"
-              >
-                Command Center <span className="material-symbols-outlined text-[18px]">chevron_right</span>
-              </button>
+              <FileText className="w-5 h-5" />
             </div>
-          </div>
 
-          <div className="relative w-full h-[210px] bg-black/20 overflow-hidden">
-            <img
-              className="w-full h-full object-cover opacity-60"
-              alt="Satellite view of farm plots"
-              src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80"
-            />
-            <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-md rounded-lg px-2.5 py-1 text-white text-[11px] font-mono flex items-center gap-1.5 border border-white/10">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-              <span>GEO-8860144 // Plot A</span>
+            <div className="flex overflow-x-auto gap-3 pb-2 no-scrollbar flex-grow">
+              {news.length > 0 ? news.map((article, i) => (
+                <div key={i} className="flex-shrink-0 w-64 p-3 rounded-xl border border-white/10 bg-black/20 text-white flex flex-col justify-between">
+                  <div>
+                    <div className="text-[10px] font-bold text-green-400 mb-1 tracking-wider uppercase">{article.category || 'Updates'}</div>
+                    <h3 className="font-bold text-sm leading-tight mb-2 line-clamp-2">{article.title}</h3>
+                    <p className="text-xs text-white/60 line-clamp-2">{article.summary || article.content}</p>
+                  </div>
+                  <div className="mt-3 text-[10px] font-medium text-white/40">{article.source_name}</div>
+                </div>
+              )) : (
+                <div className="text-xs text-white/50 p-4 text-center w-full">Loading insights...</div>
+              )}
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Micro-Climate Forecast */}
-        <section className="card p-4">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h2 className="font-bold text-base flex items-center gap-2">Micro-Climate Forecast</h2>
-              <p className="text-[11px] text-white/70">Open-Meteo Agro Forecast Node</p>
-            </div>
-            <span className="material-symbols-outlined text-2xl text-white/70">thermostat</span>
-          </div>
-
-          <div className="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
-            {[
-              { time: 'Now', temp: '32°', icon: 'sunny', desc: 'High UV', alert: true },
-              { time: '14:00', temp: '34°', icon: 'partly_cloudy_day', desc: 'Heat Stress' },
-              { time: '17:00', temp: '29°', icon: 'cloud', desc: 'Cooling' },
-              { time: '20:00', temp: '24°', icon: 'clear_night', desc: 'Clear' },
-            ].map((forecast, i) => (
-              <div key={i} className={`flex-shrink-0 w-20 p-2.5 rounded-xl border flex flex-col items-center ${
-                forecast.alert 
-                  ? 'border-red-400/50 bg-red-900/30 text-white' 
-                  : 'border-white/10 bg-black/20 text-white'
-              }`}>
-                <span className="text-[11px] font-medium opacity-80">{forecast.time}</span>
-                <span className={`material-symbols-outlined text-2xl my-1.5 ${forecast.alert ? 'text-red-300 icon-filled animate-pulse' : ''}`}>
-                  {forecast.icon}
-                </span>
-                <span className="text-sm font-bold">{forecast.temp}</span>
-                <span className="text-[9px] text-center mt-1 font-medium opacity-70 leading-tight">{forecast.desc}</span>
+          <div className="flex flex-col gap-6">
+            {/* Actionable Advisory */}
+            <section className="card p-4 border-l-4 border-l-green-400">
+              <div className="flex items-start gap-3">
+                <Leaf className="w-5 h-5 flex-shrink-0" />
+                <div>
+                  <h3 className="font-bold text-sm">Regenerative Protocol Tip</h3>
+                  <p className="text-xs text-white/80 mt-1 leading-relaxed">
+                    High temperature forecast for Thursday. Apply organic mulch or biochar in tree/crop rows to conserve soil moisture by up to 35%.
+                  </p>
+                  <button
+                    onClick={() => navigate('/diagnose')}
+                    className="mt-2.5 text-xs font-bold flex items-center gap-1 hover:underline cursor-pointer"
+                  >
+                    View Protocols <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            ))}
+            </section>
+          
+            {/* Dynamic Widgets */}
+            <div className="grid grid-cols-2 gap-3 flex-grow">
+              <div className="card p-4 flex flex-col justify-center gap-2">
+                 <div className="flex items-center justify-between">
+                    <CloudLightning className="w-5 h-5 text-amber-400" />
+                    <span className="text-[10px] font-mono text-white/50">LIVE</span>
+                 </div>
+                 <h3 className="font-bold text-xs">Weather Alert</h3>
+                 <p className="text-[10px] text-white/70 leading-snug line-clamp-2">Squall line approaching. Secure polyhouses.</p>
+              </div>
+              <div className="card p-4 flex flex-col justify-center gap-2">
+                 <div className="flex items-center justify-between">
+                    <LineChart className="w-5 h-5 text-green-400" />
+                    <span className="text-[10px] font-mono text-white/50">MANDI</span>
+                 </div>
+                 <h3 className="font-bold text-xs">Wheat Index</h3>
+                 <p className="text-xs text-green-300 font-mono text-lg font-bold">+2.4%</p>
+              </div>
+            </div>
           </div>
-        </section>
+        </div>
 
-        {/* Actionable Advisory */}
-        <section className="card p-4 border-l-4 border-l-green-400">
-          <div className="flex items-start gap-3">
-            <span className="material-symbols-outlined text-[28px] icon-filled mt-0.5 text-green-300">eco</span>
-            <div>
-              <h3 className="font-bold text-sm">Regenerative Protocol Tip</h3>
-              <p className="text-xs text-white/80 mt-1 leading-relaxed">
-                High temperature forecast for Thursday. Apply organic mulch or biochar in tree/crop rows to conserve soil moisture by up to 35%.
+        {/* Live Market Ticker */}
+        <div className="w-full overflow-hidden bg-black/40 backdrop-blur-md border-y border-white/10 py-2 mt-6">
+          <div className="whitespace-nowrap animate-[marquee_20s_linear_infinite] flex gap-8 items-center text-xs font-mono">
+            <span className="text-white/60">LIVE MARKET DATA:</span>
+            <span>Wheat: <span className="text-white font-bold">$240/ton</span> <span className="text-green-400">(+1.2%)</span></span>
+            <span>Soybean: <span className="text-white font-bold">$510/ton</span> <span className="text-red-400">(-0.4%)</span></span>
+            <span>Maize: <span className="text-white font-bold">$185/ton</span> <span className="text-green-400">(+0.8%)</span></span>
+            <span>Rice: <span className="text-white font-bold">$390/ton</span> <span className="text-white/60">(0.0%)</span></span>
+            <span>Cotton: <span className="text-white font-bold">$1.12/lb</span> <span className="text-green-400">(+2.1%)</span></span>
+          </div>
+          <style dangerouslySetInnerHTML={{__html: `
+            @keyframes marquee {
+              0% { transform: translateX(100%); }
+              100% { transform: translateX(-100%); }
+            }
+          `}} />
+        </div>
+
+
+        {/* Why AgriN-Pulse? Boast Section */}
+        <section className="mt-8 mb-6 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-green-500/5 to-transparent blur-3xl -z-10"></div>
+          <h2 className="text-2xl font-bold mb-6 text-center">Why AgriN-Pulse?</h2>
+          
+          <div className="space-y-4">
+            <div className="glass-panel p-5 relative overflow-hidden group border border-white/20">
+              <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-700">
+                <Flower2 className="w-24 h-24" />
+              </div>
+              <h3 className="text-lg font-bold text-green-300 flex items-center gap-2 mb-2">
+                <Flower2 className="w-5 h-5" />
+                Immersive Design
+              </h3>
+              <p className="text-sm text-white/80 leading-relaxed relative z-10">
+                Unlike clunky, traditional ag-tech dashboards, AgriN-Pulse merges robust environmental tech applications with an immersive, high-fantasy inspired visual aesthetic.
               </p>
-              <button
-                onClick={() => navigate('/diagnose')}
-                className="mt-2.5 text-xs font-bold flex items-center gap-1 hover:underline cursor-pointer"
-              >
-                View Standard Protocols <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </button>
+            </div>
+
+            <div className="glass-panel p-5 relative overflow-hidden group border border-white/20">
+              <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-700">
+                <Cpu className="w-24 h-24" />
+              </div>
+              <h3 className="text-lg font-bold text-green-300 flex items-center gap-2 mb-2">
+                <Cpu className="w-5 h-5" />
+                Edge AI
+              </h3>
+              <p className="text-sm text-white/80 leading-relaxed relative z-10">
+                Fully localized inference capabilities via ONNX Runtime ensuring strict privacy, low latency, and continuous offline functionality in remote sectors.
+              </p>
+            </div>
+
+            <div className="glass-panel p-5 relative overflow-hidden group border border-white/20">
+              <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-700">
+                <BookOpen className="w-24 h-24" />
+              </div>
+              <h3 className="text-lg font-bold text-green-300 flex items-center gap-2 mb-2">
+                <BookOpen className="w-5 h-5" />
+                Semantic Interoperability
+              </h3>
+              <p className="text-sm text-white/80 leading-relaxed relative z-10">
+                Built on W3C JSON-LD standards for seamless global policy integration, bridging the gap between farm-level telemetry and international ESG compliance.
+              </p>
             </div>
           </div>
         </section>
+
       </main>
 
       {/* Scanning Laser Animation Modal */}
       {isScanning && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-white text-center">
           <div className="relative w-64 h-64 border-2 border-dashed border-primary rounded-2xl flex items-center justify-center overflow-hidden bg-black/40 shadow-2xl">
-            <span className="material-symbols-outlined text-6xl text-primary animate-pulse">local_florist</span>
+            <Flower2 className="w-5 h-5" />
             <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-primary-fixed to-transparent animate-scan shadow-[0_0_15px_#10b981]"></div>
           </div>
           <h3 className="text-xl font-bold mt-6 text-primary-fixed">Analyzing Crop Pathology...</h3>
@@ -318,34 +485,27 @@ export default function FarmerApp() {
           <div className="glass-panel w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-green-300 icon-filled">psychology</span>
+                <BrainCircuit className="w-5 h-5" />
                 <h3 className="font-bold text-base text-white">Voice Agricultural Advisory</h3>
               </div>
               <button
                 onClick={() => setShowVoiceModal(false)}
                 className="text-white/60 hover:bg-white/10 rounded-full p-1 cursor-pointer transition-colors"
               >
-                <span className="material-symbols-outlined">close</span>
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="mt-4 flex flex-col items-center text-center">
               <button
-                onClick={() => {
-                  setIsRecording(!isRecording);
-                  if (!isRecording) {
-                    setTimeout(() => {
-                      handleVoiceSubmit('What is the optimal irrigation schedule for wheat under high heat?');
-                    }, 2000);
-                  }
-                }}
+                onClick={toggleRecording}
                 className={`w-20 h-20 rounded-full flex items-center justify-center transition-all ${
                   isRecording
                     ? 'bg-red-500 text-white animate-pulse ring-8 ring-red-500/20'
                     : 'bg-green-400 text-black shadow-lg active:scale-95'
                 }`}
               >
-                <span className="material-symbols-outlined text-3xl">{isRecording ? 'graphic_eq' : 'mic'}</span>
+                {isRecording ? <Activity className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
               </button>
               <p className="text-xs font-semibold mt-3 text-white/70">
                 {isRecording ? 'Listening... Speak your crop question' : 'Tap mic to speak or select a quick prompt below'}
@@ -373,7 +533,7 @@ export default function FarmerApp() {
             {voiceAdvisoryResponse && (
               <div className="mt-5 p-4 rounded-xl bg-green-400/10 border border-green-400/30 text-left">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-green-300 mb-1">
-                  <span className="material-symbols-outlined text-[16px]">verified</span>
+                  <ShieldCheck className="w-5 h-5" />
                   <span>IIFSR Ground-Truth Advisory</span>
                 </div>
                 <p className="text-xs text-white font-medium leading-relaxed">
@@ -383,7 +543,7 @@ export default function FarmerApp() {
                   <ul className="mt-3 space-y-1.5 border-t border-green-400/20 pt-2 text-[11px] text-white/80">
                     {voiceAdvisoryResponse.recommended_actions.map((act, i) => (
                       <li key={i} className="flex items-start gap-1.5">
-                        <span className="material-symbols-outlined text-[14px] text-green-300 mt-0.5">check_circle</span>
+                        <CheckCircle2 className="w-5 h-5" />
                         <span>{act}</span>
                       </li>
                     ))}
@@ -395,7 +555,13 @@ export default function FarmerApp() {
         </div>
       )}
 
-      {/* Bottom Navigation Bar is now removed as Layout handles navigation */}
+      {/* Login Modal */}
+      {showLoginModal && (
+        <LoginModal 
+          onClose={() => setShowLoginModal(false)} 
+          onLoginSuccess={handleLoginSuccess}
+        />
+      )}
     </div>
   );
 }
