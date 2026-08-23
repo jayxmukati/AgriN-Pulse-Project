@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import LoginModal from './LoginModal';
 import { queueScan, getQueuedScans, clearQueuedScan } from '../lib/sync';
-import { ShieldCheck, BrainCircuit, CheckCircle2, Flower2, ChevronRight, FileText, Mic, ChevronDown, User, ArrowRight, Camera, Leaf, X, RefreshCw , Activity, CloudLightning, LineChart, Cpu, BookOpen } from 'lucide-react';
+import { ShieldCheck, BrainCircuit, CheckCircle2, Flower2, ChevronRight, FileText, Mic, ChevronDown, User, ArrowRight, Camera, Leaf, X, RefreshCw, Activity, CloudLightning, LineChart, Cpu, BookOpen, Video, SwitchCamera, Upload, Sparkles } from 'lucide-react';
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function FarmerApp() {
@@ -24,9 +24,17 @@ export default function FarmerApp() {
 
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
 
   // States
   const [isScanning, setIsScanning] = useState(false);
+  const [showCameraModal, setShowCameraModal] = useState(false);
+  const [videoDevices, setVideoDevices] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState('');
+  const [cameraError, setCameraError] = useState(null);
+  const [isStartingCamera, setIsStartingCamera] = useState(false);
+
   const [showVoiceModal, setShowVoiceModal] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef(null);
@@ -86,11 +94,87 @@ export default function FarmerApp() {
     { code: 'zh', name: '中文' }
   ];
 
-  // Handle Photo / Leaf Scan
-  const handleScanTrigger = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
+  // Stop Webcam Stream
+  const stopWebcam = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
+  };
+
+  // Start Live Webcam Stream
+  const startWebcam = async (deviceIdToUse) => {
+    setIsStartingCamera(true);
+    setCameraError(null);
+    stopWebcam();
+
+    try {
+      // First get user media to ensure permission is granted
+      const constraints = {
+        video: deviceIdToUse ? { deviceId: { exact: deviceIdToUse } } : { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+      };
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      streamRef.current = stream;
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+
+      // Enumerate all connected cameras (built-in + portable USB webcams)
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = devices.filter(d => d.kind === 'videoinput');
+      setVideoDevices(videoInputs);
+      
+      if (!deviceIdToUse && videoInputs.length > 0) {
+        setSelectedDeviceId(videoInputs[0].deviceId);
+      }
+    } catch (err) {
+      console.error('Camera access error:', err);
+      setCameraError('Unable to access camera or portable webcam. Please allow camera permissions or upload a file.');
+    } finally {
+      setIsStartingCamera(false);
+    }
+  };
+
+  // Switch Selected Camera Device
+  const handleDeviceChange = (e) => {
+    const newDeviceId = e.target.value;
+    setSelectedDeviceId(newDeviceId);
+    startWebcam(newDeviceId);
+  };
+
+  // Capture Snapshot from Webcam Frame
+  const captureSnapshot = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const file = new File([blob], 'portable_webcam_leaf_scan.jpg', { type: 'image/jpeg' });
+      const previewUrl = URL.createObjectURL(blob);
+
+      stopWebcam();
+      setShowCameraModal(false);
+
+      navigate('/diagnose', {
+        state: {
+          file: file,
+          previewUrl: previewUrl
+        }
+      });
+    }, 'image/jpeg', 0.95);
+  };
+
+  // Trigger Camera Modal
+  const handleScanTrigger = () => {
+    setShowCameraModal(true);
+    startWebcam(selectedDeviceId);
   };
 
   const handleFileChange = (e) => {
@@ -98,6 +182,8 @@ export default function FarmerApp() {
     if (!file) return;
 
     const previewUrl = URL.createObjectURL(file);
+    stopWebcam();
+    setShowCameraModal(false);
     
     // Navigate immediately to DiagnosticResults to handle the progressive stepper
     navigate('/diagnose', {
@@ -107,6 +193,7 @@ export default function FarmerApp() {
       }
     });
   };
+
 
   // Voice Advisory Handler
   const handleVoiceSubmit = async (textQuery) => {
@@ -200,8 +287,8 @@ export default function FarmerApp() {
         className="hidden"
       />
 
-      {/* Landing Section */}
-      <section className="min-h-screen flex flex-col items-center justify-center text-center px-4 -mt-20">
+      {/* Landing Section (Picture 2) */}
+      <section className="relative min-h-[calc(100vh-80px)] flex flex-col items-center justify-center text-center px-4">
         <h1 className="text-6xl sm:text-8xl font-bold tracking-tighter mb-4 drop-shadow-2xl">
           Glowinn <span className="font-light italic text-green-400">Agri</span>
         </h1>
@@ -210,14 +297,26 @@ export default function FarmerApp() {
           Engineered for Regenerative Agriculture.
         </p>
         
-        <div className="absolute bottom-10 flex flex-col items-center animate-bounce opacity-70">
-          <span className="text-xs font-bold tracking-widest uppercase mb-2">Scroll to Explore</span>
-          <ChevronDown className="w-5 h-5" />
+        {/* Scroll to Explore (Anchored to bottom of Picture 2) */}
+        <div 
+          onClick={() => {
+            const mainEl = document.getElementById('main-app-content');
+            if (mainEl) {
+              mainEl.scrollIntoView({ behavior: 'smooth' });
+            } else {
+              window.scrollTo({ top: window.innerHeight - 80, behavior: 'smooth' });
+            }
+          }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce opacity-80 hover:opacity-100 cursor-pointer transition-all z-20"
+        >
+          <span className="text-xs font-bold tracking-widest uppercase mb-1.5 text-white/90 drop-shadow">Scroll to Explore</span>
+          <ChevronDown className="w-5 h-5 text-green-400 drop-shadow" />
         </div>
       </section>
 
       {/* Top App Bar */}
-      <header className="sticky top-4 z-40 px-4 py-3 glass-panel mb-6 flex items-center justify-between mt-4">
+      <header id="main-app-content" className="sticky top-4 z-40 px-4 py-3 glass-panel mb-6 flex items-center justify-between mt-4">
+
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5 text-xs text-white/70 font-medium">
             <RefreshCw className="w-5 h-5" />
@@ -476,6 +575,152 @@ export default function FarmerApp() {
           </div>
           <h3 className="text-xl font-bold mt-6 text-primary-fixed">Analyzing Crop Pathology...</h3>
           <p className="text-xs text-gray-300 mt-2 max-w-xs">Stripping EXIF/GPS coordinates & running localized disease inference...</p>
+        </div>
+      )}
+
+      {/* Live Webcam / Portable Camera Scanner Modal */}
+      {showCameraModal && (
+        <div className="fixed inset-0 z-[95] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="glass-panel w-full max-w-xl rounded-3xl p-5 shadow-2xl border border-green-500/30 flex flex-col gap-4">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center text-green-400">
+                  <Video className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-white">Live Leaf Disease Scanner</h3>
+                  <p className="text-[10px] text-green-300 font-mono">Portable USB Webcam / Camera</p>
+                </div>
+              </div>
+
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  stopWebcam();
+                  setShowCameraModal(false);
+                }}
+                className="text-white/60 hover:text-white hover:bg-white/10 rounded-full p-1.5 cursor-pointer transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Camera Device Selector (If multiple cameras/webcams detected) */}
+            {videoDevices.length > 1 && (
+              <div className="flex items-center justify-between bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs">
+                <span className="text-white/70 flex items-center gap-1.5 font-medium">
+                  <SwitchCamera className="w-4 h-4 text-green-400" />
+                  Camera Source:
+                </span>
+                <select
+                  value={selectedDeviceId}
+                  onChange={handleDeviceChange}
+                  className="bg-black/60 text-green-300 font-bold border border-white/20 rounded-lg px-2.5 py-1 text-xs outline-none cursor-pointer"
+                >
+                  {videoDevices.map((device, idx) => (
+                    <option key={device.deviceId || idx} value={device.deviceId} className="bg-slate-900 text-white">
+                      {device.label || `Camera ${idx + 1}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Viewfinder Video Stream Container */}
+            <div className="relative w-full aspect-video sm:h-72 bg-black/80 rounded-2xl overflow-hidden border border-white/15 flex items-center justify-center shadow-inner">
+              {cameraError ? (
+                <div className="p-6 text-center text-red-300 space-y-3">
+                  <p className="text-xs font-semibold">{cameraError}</p>
+                  <button
+                    onClick={() => {
+                      stopWebcam();
+                      setShowCameraModal(false);
+                      if (fileInputRef.current) fileInputRef.current.click();
+                    }}
+                    className="text-xs bg-white/10 hover:bg-white/20 text-white border border-white/20 px-4 py-2 rounded-xl cursor-pointer"
+                  >
+                    Upload from Files Instead
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover"
+                  />
+
+                  {/* Animated High-Tech Viewfinder Overlays */}
+                  <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4">
+                    {/* Top Stats Banner */}
+                    <div className="flex justify-between items-center">
+                      <div className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono text-green-300 flex items-center gap-1.5 border border-green-500/30">
+                        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                        <span>LIVE FEED // 720p</span>
+                      </div>
+                      <div className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono text-white/70 border border-white/10">
+                        AI Vision Ready
+                      </div>
+                    </div>
+
+                    {/* Centered Target Bounding Reticle */}
+                    <div className="self-center relative w-44 h-44 sm:w-52 sm:h-52 border border-green-400/40 rounded-2xl flex items-center justify-center">
+                      {/* Corner Brackets */}
+                      <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-green-400"></div>
+                      <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-green-400"></div>
+                      <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-green-400"></div>
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-green-400"></div>
+
+                      {/* Center crosshair */}
+                      <div className="w-3 h-3 border border-green-400/80 rounded-full flex items-center justify-center">
+                        <div className="w-1 h-1 bg-green-400 rounded-full"></div>
+                      </div>
+
+                      {/* Instruction prompt */}
+                      <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-sm text-green-300 font-mono text-[9px] px-2 py-0.5 rounded shadow whitespace-nowrap border border-green-500/30">
+                        Position leaf lesion inside reticle
+                      </span>
+                    </div>
+
+                    {/* Bottom Status */}
+                    <div className="text-center text-[10px] text-white/60 font-mono">
+                      EXIF/GPS data will be stripped automatically
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Shutter & Alternate Actions */}
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  stopWebcam();
+                  setShowCameraModal(false);
+                  if (fileInputRef.current) fileInputRef.current.click();
+                }}
+                className="flex items-center gap-1.5 text-xs text-white/70 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-2.5 rounded-xl border border-white/15 cursor-pointer transition-colors"
+              >
+                <Upload className="w-4 h-4" />
+                <span>Upload File</span>
+              </button>
+
+              {/* Big Shutter Capture Button */}
+              <button
+                type="button"
+                onClick={captureSnapshot}
+                disabled={isStartingCamera || !!cameraError}
+                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 text-black font-bold py-3 px-5 rounded-2xl shadow-[0_0_20px_rgba(74,222,128,0.4)] active:scale-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Camera className="w-5 h-5 text-black" />
+                <span className="text-sm">Capture & Analyze Leaf</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
