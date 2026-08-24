@@ -42,34 +42,7 @@ export default function DiagnosticResults() {
         if (isMounted) setLoadingState(2);
         await new Promise(r => setTimeout(r, 800));
         if (isMounted) {
-          setDiagnosis({
-            scan_id: `SCAN-8492`,
-            disease_name: 'Tomato Early Blight',
-            scientific_name: 'Alternaria solani',
-            confidence: 0.94,
-            severity: 'Moderate',
-            privacy_status: 'GPS & EXIF stripped. Mapped to H3 Hex Geo-ID: GEO-8860144aa7fffff',
-            detections: [
-                {
-                    disease_name: 'Tomato Early Blight',
-                    confidence: 0.94,
-                    bbox: [0.25, 0.20, 0.70, 0.85]
-                }
-            ],
-            regenerative_plan: {
-              treatments: [
-                'Apply Bio-fungicide sprays (Bacillus subtilis based) immediately to surrounding healthy foliage.',
-                'Use Neem oil (2 tbsp / gallon) applied weekly in early morning or late evening.',
-                'Prune and securely discard infected lower leaves to limit spore spread.'
-              ],
-              management_rules: [
-                'Adjust irrigation: Switch entirely to drip irrigation to keep leaf canopies dry.',
-                'Increase plant spacing to minimum 24 inches for optimal airflow.',
-                'Apply organic mulch (straw/leaves) to prevent soil-borne spore splashes.'
-              ]
-            },
-            audio_script: 'Diagnostic complete for tomato crop. Early Blight detected at 94 percent confidence. Deploy Bacillus bio-fungicide and transition to drip irrigation immediately.'
-          });
+          setError("No image provided. Please scan a leaf image from the home page.");
           setLoadingState(3);
         }
         return;
@@ -99,42 +72,21 @@ export default function DiagnosticResults() {
         await new Promise(r => setTimeout(r, 600));
 
         if (isMounted) {
-          setDiagnosis(response.data);
+          if (response.data.status === 'error') {
+            setError(response.data.message);
+          } else {
+            setDiagnosis(response.data);
+          }
           setLoadingState(3);
         }
       } catch (err) {
-        console.warn('Backend unavailable, using simulated offline diagnosis:', err);
-        await queueScan(passedFile, '23.2599', '77.4126');
+        console.warn('Backend diagnosis failed:', err);
         
         if (isMounted) setLoadingState(2);
         await new Promise(r => setTimeout(r, 600));
 
         if (isMounted) {
-          setDiagnosis({
-            scan_id: `SCAN-${Math.floor(1000 + Math.random() * 9000)}`,
-            disease_name: 'Tomato Early Blight',
-            scientific_name: 'Alternaria solani',
-            confidence: 0.94,
-            severity: 'Moderate',
-            privacy_status: 'GPS & EXIF stripped. Mapped to H3 Hex Geo-ID: GEO-8860144aa7fffff',
-            alternatives: [
-              { disease_name: 'Septoria Leaf Spot', confidence: 0.12 },
-              { disease_name: 'Late Blight', confidence: 0.04 }
-            ],
-            regenerative_plan: {
-              treatments: [
-                'Apply Bio-fungicide sprays (Bacillus subtilis based) immediately to surrounding healthy foliage.',
-                'Use Neem oil (2 tbsp / gallon) applied weekly in early morning or late evening.',
-                'Prune and securely discard infected lower leaves to limit spore spread.'
-              ],
-              management_rules: [
-                'Adjust irrigation: Switch entirely to drip irrigation to keep leaf canopies dry.',
-                'Increase plant spacing to minimum 24 inches for optimal airflow.',
-                'Apply organic mulch (straw/leaves) to prevent soil-borne spore splashes.'
-              ]
-            },
-            audio_script: 'Diagnostic complete for tomato crop. Early Blight detected at 94 percent confidence. Deploy Bacillus bio-fungicide and transition to drip irrigation immediately.'
-          });
+          setError(err.response?.data?.message || "Diagnosis failed. Please reupload image.");
           setLoadingState(3);
         }
       }
@@ -228,6 +180,51 @@ export default function DiagnosticResults() {
             {loadingState > 2 ? <CheckCircle2 className="text-green-400 w-5 h-5" /> : loadingState === 2 ? <Loader2 className="animate-spin text-green-400 w-5 h-5" /> : <div className="w-5 h-5" />}
             <span className={loadingState === 2 ? 'font-bold text-white' : 'text-white/70'}>Mapping Pathology Confidence...</span>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !diagnosis) {
+    const isNoImage = error === "No image provided. Please scan a leaf image from the home page.";
+    
+    return (
+      <div className="w-full relative z-10 text-white font-body-md pb-24 animate-in fade-in flex flex-col items-center mt-12 px-4">
+        <div className="flex items-center gap-3 glass-panel px-4 py-2 w-fit cursor-pointer hover:bg-white/10 transition-colors mb-8 self-start" onClick={() => navigate(-1)}>
+          <ArrowLeft className="w-5 h-5" />
+          <span className="font-bold text-sm">Back</span>
+        </div>
+        <div className={`card p-8 flex flex-col items-center max-w-md text-center ${isNoImage ? 'border-white/20' : 'border-red-500/50'}`}>
+           {isNoImage ? (
+             <Leaf className="w-12 h-12 text-green-400 mb-4" />
+           ) : (
+             <Info className="w-12 h-12 text-red-400 mb-4" />
+           )}
+           <h2 className="text-xl font-bold mb-2">{isNoImage ? 'No Image Provided' : 'Diagnosis Failed'}</h2>
+           <p className="text-sm text-white/80">{error || "Could not complete diagnosis."}</p>
+           
+           {isNoImage ? (
+             <div className="mt-6 flex gap-4 w-full justify-center">
+               <label className="bg-green-400 hover:bg-green-300 text-black px-6 py-2 rounded-full font-bold transition-colors cursor-pointer text-sm flex items-center justify-center">
+                 Upload Leaf Image
+                 <input 
+                   type="file" 
+                   accept="image/*" 
+                   className="hidden" 
+                   onChange={(e) => {
+                     const file = e.target.files?.[0];
+                     if (file) {
+                       const previewUrl = URL.createObjectURL(file);
+                       navigate('/diagnose', { state: { file, previewUrl }, replace: true });
+                       window.location.reload(); // Quick way to restart the process
+                     }
+                   }} 
+                 />
+               </label>
+             </div>
+           ) : (
+             <button onClick={() => navigate('/')} className="mt-6 bg-white/10 hover:bg-white/20 px-6 py-2 rounded-full font-bold transition-colors">Return Home</button>
+           )}
         </div>
       </div>
     );

@@ -27,6 +27,12 @@ async def diagnose_plant(
     # Run vision diagnostics
     prediction = predict_disease(image_bytes if image_bytes else b"")
     
+    if prediction and "error" in prediction[0]:
+        return {
+            "status": "error",
+            "message": prediction[0]["error"]
+        }
+    
     # Generate regenerative advisory
     geo_id = anonymize_location(lat, lon)
     top_detection = prediction[0] if prediction else {}
