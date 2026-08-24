@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Globe, CheckCircle2, Wifi, ArrowLeft, Share2 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://agrin-pulse-api.onrender.com';
 
 export default function PolicyDashboard() {
   const navigate = useNavigate();

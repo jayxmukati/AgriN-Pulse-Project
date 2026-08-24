@@ -3,7 +3,7 @@ import axios from 'axios';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { Map, TrendingUp, PieChart as PieChartIcon } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://agrin-pulse-api.onrender.com';
 
 const CROP_COLORS = ['#4ade80', '#22c55e', '#16a34a', '#15803d'];
 

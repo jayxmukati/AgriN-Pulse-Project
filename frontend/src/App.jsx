@@ -20,7 +20,7 @@ function App() {
   useEffect(() => {
     // Only connect WS in browser environment
     if (typeof window !== 'undefined') {
-      const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:5000/ws/alerts';
+      const wsUrl = import.meta.env.VITE_WS_URL || 'wss://agrin-pulse-api.onrender.com/ws/alerts';
       const socket = new WebSocket(wsUrl);
 
       socket.onmessage = (event) => {

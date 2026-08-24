@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getQueuedScans } from '../lib/sync';
 import { Mountain, ChevronRight, CloudDrizzle, CloudOff, User, History, RefreshCw, Pencil, Check } from 'lucide-react';
 import axios from 'axios';
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://agrin-pulse-api.onrender.com';
 
 export default function UserProfile() {
   const [offlineScans, setOfflineScans] = useState([]);

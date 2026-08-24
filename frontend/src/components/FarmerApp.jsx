@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { queueScan, getQueuedScans, clearQueuedScan } from '../lib/sync';
 import { ShieldCheck, BrainCircuit, CheckCircle2, Flower2, ChevronRight, FileText, Mic, ChevronDown, User, ArrowRight, Camera, Leaf, X, RefreshCw, Activity, CloudLightning, LineChart, Cpu, BookOpen, Video, SwitchCamera, Upload, Sparkles } from 'lucide-react';
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://agrin-pulse-api.onrender.com';
 
 export default function FarmerApp() {
   const [lang, setLang] = useState('EN');

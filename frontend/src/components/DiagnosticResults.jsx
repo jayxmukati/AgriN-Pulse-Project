@@ -4,7 +4,7 @@ import axios from 'axios';
 import { queueScan } from '../lib/sync';
 import { CheckCircle2, ChevronRight, Play, Pause, Leaf, Share2, Info, ArrowLeft, Loader2 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://agrin-pulse-api.onrender.com';
 
 export default function DiagnosticResults() {
   const location = useLocation();

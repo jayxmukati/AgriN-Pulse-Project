@@ -3,7 +3,7 @@ import { Sprout, Sun, Calendar as CalendarIcon, CheckCircle2, ChevronRight, Drop
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://agrin-pulse-api.onrender.com';
 
 export default function CropCalendar() {
   const navigate = useNavigate();
