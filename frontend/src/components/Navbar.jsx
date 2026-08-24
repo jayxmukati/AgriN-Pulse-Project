@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Cloudmark, MenuIcon } from './icons';
 import './Navbar.css';
 import { UserCircle, LogOut, User, Globe } from 'lucide-react';
+import LoginModal from './LoginModal';
 
 const LINKS = [
   { label: 'Overview', path: '/' },
@@ -18,6 +19,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [authDropdown, setAuthDropdown] = useState(false);
   const [langDropdown, setLangDropdown] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [currentLang, setCurrentLang] = useState('EN');
   
   const handleLangChange = (lang) => {
@@ -90,10 +92,7 @@ export default function Navbar() {
           </div>
           {!isAuthenticated ? (
             <button 
-              onClick={() => {
-                localStorage.setItem('agrin_token', 'simulated_token_123');
-                window.location.href = "/profile";
-              }}
+              onClick={() => setShowLoginModal(true)}
               className="text-[11px] font-bold bg-white/10 border border-white/20 rounded-full px-4 py-2 hover:bg-white/20 transition-colors cursor-pointer text-white"
             >
               Sign In
@@ -168,6 +167,16 @@ export default function Navbar() {
             window.location.href = "/";
           }}>Sign Out</Link>
         </div>
+      )}
+
+      {showLoginModal && (
+        <LoginModal 
+          onClose={() => setShowLoginModal(false)} 
+          onLoginSuccess={(token) => {
+            setShowLoginModal(false);
+            window.location.href = "/profile";
+          }}
+        />
       )}
     </header>
   );

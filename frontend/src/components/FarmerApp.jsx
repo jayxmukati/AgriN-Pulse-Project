@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import LoginModal from './LoginModal';
 import { queueScan, getQueuedScans, clearQueuedScan } from '../lib/sync';
 import { ShieldCheck, BrainCircuit, CheckCircle2, Flower2, ChevronRight, FileText, Mic, ChevronDown, User, ArrowRight, Camera, Leaf, X, RefreshCw, Activity, CloudLightning, LineChart, Cpu, BookOpen, Video, SwitchCamera, Upload, Sparkles } from 'lucide-react';
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -41,29 +40,23 @@ export default function FarmerApp() {
   const audioChunksRef = useRef([]);
   const [voiceQuery, setVoiceQuery] = useState('');
   const [voiceAdvisoryResponse, setVoiceAdvisoryResponse] = useState(null);
-  const [selectedLang, setSelectedLang] = useState('English');
-  const [showLangMenu, setShowLangMenu] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState('Just now');
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [news, setNews] = useState([]);
   
   useEffect(() => {
     const token = localStorage.getItem('agrin_token');
-    if (token) setIsAuthenticated(true);
+    if (token) {
+      setIsAuthenticated(true);
+      processOfflineQueue();
+    }
     
     // Fetch News
     axios.get(`${API_BASE}/api/v1/news?limit=5`)
       .then(res => setNews(res.data))
       .catch(err => console.log('News fetch failed:', err));
   }, []);
-  
-  const handleLoginSuccess = (token) => {
-    setIsAuthenticated(true);
-    setShowLoginModal(false);
-    processOfflineQueue();
-  };
   
   const processOfflineQueue = async () => {
     try {
@@ -328,46 +321,7 @@ export default function FarmerApp() {
             <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
             PWA Ready
           </div>
-          {!isAuthenticated ? (
-            <button 
-              onClick={() => setShowLoginModal(true)}
-              className="text-[11px] font-bold bg-white/10 border border-white/20 rounded-full px-3 py-1 hover:bg-white/20 transition-colors cursor-pointer"
-            >
-              Sign In
-            </button>
-          ) : (
-            <div className="w-6 h-6 rounded-full bg-green-500/20 border border-green-500/50 flex items-center justify-center">
-              <User className="w-5 h-5" />
-            </div>
-          )}
-          <button 
-            onClick={() => setShowLangMenu(!showLangMenu)}
-            className="flex items-center gap-1 text-xs border border-white/20 rounded-full px-3 py-1 hover:bg-white/10 transition-colors"
-          >
-            translate
-            <span className="font-bold">{selectedLang}</span>
-            <ChevronDown className="w-5 h-5" />
-          </button>
         </div>
-        
-        {showLangMenu && (
-            <div className="absolute top-16 right-4 w-44 glass-panel border border-white/10 rounded-xl shadow-lg py-1.5 z-50">
-              {languages.map((l) => (
-                <button
-                  key={l.code}
-                  onClick={() => {
-                    setSelectedLang(l.name);
-                    setShowLangMenu(false);
-                  }}
-                  className={`w-full text-left px-4 py-2 text-xs hover:bg-white/10 flex items-center justify-between ${
-                    selectedLang.includes(l.name) ? 'font-bold text-green-300' : 'text-white'
-                  }`}
-                >
-                  <span>{l.name}</span>
-                </button>
-              ))}
-            </div>
-          )}
       </header>
 
       {/* Main Content Area */}
@@ -800,13 +754,6 @@ export default function FarmerApp() {
         </div>
       )}
 
-      {/* Login Modal */}
-      {showLoginModal && (
-        <LoginModal 
-          onClose={() => setShowLoginModal(false)} 
-          onLoginSuccess={handleLoginSuccess}
-        />
-      )}
     </div>
   );
 }
