@@ -74,7 +74,9 @@ npm run dev
 
 *   **Mocked ML Workloads:** Due to hardware constraints and threading complexities with Apple Silicon (`libc++abi recursive_mutex lock failed`), the Hugging Face pipelines (`openai/whisper-tiny` & `sentence-transformers`) have been gracefully disabled. The pipeline now deterministically simulates AI responses to guarantee a smooth and uninterrupted live presentation.
 *   **In-Memory/SQLite Persistence:** To eliminate the overhead of standing up an external PostgreSQL/pgvector database during a live demo, the application uses a lightweight local `test.db` SQLite database with `check_same_thread=False`.
-*   **Simulated Auth:** A bypass mechanism is implemented for demo purposes, placing a mock `agrin_token` in `localStorage` when clicking "Sign In".
+*   **Authentication (Seeded User):** A fully functional JWT-based authentication flow is implemented. For demo purposes, you can log in immediately using the seeded test account:
+    *   **Email:** `farmer@demo.com`
+    *   **Password:** `password123`
 
 ---
 
