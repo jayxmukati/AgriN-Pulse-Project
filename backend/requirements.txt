@@ -22,5 +22,3 @@ ffmpeg-python
 transformers
 torch
 email-validator
-pyaudioop
-audioop-lts
