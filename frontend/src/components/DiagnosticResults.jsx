@@ -383,35 +383,50 @@ export default function DiagnosticResults() {
             Regenerative Agro-Ecological Plan
           </h2>
 
-          <div className="card p-0 overflow-hidden divide-y divide-white/10">
-            <details className="group" open>
-              <summary className="flex justify-between items-center p-4 cursor-pointer text-xs font-bold hover:bg-white/5 transition-colors">
-                <span>Natural & Bio-Fungicide Treatments</span>
-                <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90 text-white/50" />
-              </summary>
-              <div className="px-4 pb-4">
-                <ul className="list-disc pl-4 space-y-2 text-xs text-white/70">
-                  {diagnosis.regenerative_plan?.treatments?.map((t, i) => (
-                    <li key={i} className="leading-relaxed">{t}</li>
-                  ))}
-                </ul>
-              </div>
-            </details>
+          {diagnosis.disease_name.includes("Healthy") ? (
+            <div className="card p-4 bg-green-500/10 border border-green-500/30 text-center flex flex-col items-center">
+              <CheckCircle2 className="w-8 h-8 text-green-400 mb-2" />
+              <p className="text-sm text-green-300 font-bold">No intervention required. Maintain current agronomic practices.</p>
+            </div>
+          ) : (
+            <div className="card p-0 overflow-hidden divide-y divide-white/10">
+              <details className="group" open>
+                <summary className="flex justify-between items-center p-4 cursor-pointer text-xs font-bold hover:bg-white/5 transition-colors">
+                  <span>Natural & Low-Cost Treatments</span>
+                  <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90 text-white/50" />
+                </summary>
+                <div className="px-4 pb-4">
+                  <ul className="list-disc pl-4 space-y-2 text-xs text-white/70">
+                    {diagnosis.regenerative_plan?.natural_treatments?.length > 0 ? (
+                      diagnosis.regenerative_plan.natural_treatments.map((t, i) => (
+                        <li key={i} className="leading-relaxed">{t}</li>
+                      ))
+                    ) : (
+                      <li className="leading-relaxed italic">No specific natural treatments mapped for this pathogen.</li>
+                    )}
+                  </ul>
+                </div>
+              </details>
 
-            <details className="group">
-              <summary className="flex justify-between items-center p-4 cursor-pointer text-xs font-bold hover:bg-white/5 transition-colors">
-                <span>Soil & Water Irrigation Rules</span>
-                <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90 text-white/50" />
-              </summary>
-              <div className="px-4 pb-4">
-                <ul className="list-disc pl-4 space-y-2 text-xs text-white/70">
-                  {diagnosis.regenerative_plan?.management_rules?.map((m, i) => (
-                    <li key={i} className="leading-relaxed">{m}</li>
-                  ))}
-                </ul>
-              </div>
-            </details>
-          </div>
+              <details className="group">
+                <summary className="flex justify-between items-center p-4 cursor-pointer text-xs font-bold hover:bg-white/5 transition-colors">
+                  <span>Soil & Water Management Rules</span>
+                  <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90 text-white/50" />
+                </summary>
+                <div className="px-4 pb-4">
+                  <ul className="list-disc pl-4 space-y-2 text-xs text-white/70">
+                    {diagnosis.regenerative_plan?.soil_water_management?.length > 0 ? (
+                      diagnosis.regenerative_plan.soil_water_management.map((m, i) => (
+                        <li key={i} className="leading-relaxed">{m}</li>
+                      ))
+                    ) : (
+                      <li className="leading-relaxed italic">No specific soil or water management rules mapped.</li>
+                    )}
+                  </ul>
+                </div>
+              </details>
+            </div>
+          )}
         </section>
 
         {/* Audio Advisory Player & Actions */}

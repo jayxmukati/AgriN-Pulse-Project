@@ -115,7 +115,7 @@ def predict_disease(image_bytes: bytes) -> dict:
     
     # Pick a pseudo-random class based on hash
     class_idx = int(img_hash[0], 16) % 5
-    diseases = ["Dynamic Blight", "Dynamic Rust", "Dynamic Mildew", "Dynamic Spot", "Dynamic Canker"]
+    diseases = ["Tomato Early Blight", "Wheat Rust", "Powdery Mildew", "Septoria Leaf Spot", "Healthy"]
     
     # Generate pseudo-random confidence (between 0.70 and 0.99)
     conf = 0.70 + (int(img_hash[1:3], 16) / 255.0) * 0.29

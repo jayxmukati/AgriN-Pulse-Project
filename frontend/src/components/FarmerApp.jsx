@@ -300,10 +300,10 @@ export default function FarmerApp() {
               window.scrollTo({ top: window.innerHeight - 80, behavior: 'smooth' });
             }
           }}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce opacity-80 hover:opacity-100 cursor-pointer transition-all z-20"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center opacity-70 hover:opacity-100 cursor-pointer transition-all duration-300 z-20"
         >
-          <span className="text-xs font-bold tracking-widest uppercase mb-1.5 text-white/90 drop-shadow">Scroll to Explore</span>
-          <ChevronDown className="w-5 h-5 text-green-400 drop-shadow" />
+          <span className="text-xs font-bold tracking-widest uppercase mb-1.5 text-white drop-shadow-md">Scroll to Explore</span>
+          <ChevronDown className="w-5 h-5 text-green-400 drop-shadow-md" />
         </div>
       </section>
 

@@ -2,7 +2,7 @@ import uuid
 from typing import Optional
 from fastapi import APIRouter, File, UploadFile, Form
 from app.services.vision import strip_exif, predict_disease
-from app.services.rag import generate_advisory
+from app.services.treatments import get_treatment_plan
 from app.services.spatial import anonymize_location
 
 router = APIRouter()
@@ -17,7 +17,7 @@ async def diagnose_plant(
     Analyzes uploaded crop leaf photo:
     1. Strips EXIF/GPS metadata for farmer privacy.
     2. Runs disease classification & pathogen bounding box detection.
-    3. Retrieves regenerative agronomy treatments from IIFSR guidelines.
+    3. Retrieves regenerative agronomy treatments from knowledge base.
     """
     image_bytes = None
     if file:
@@ -36,30 +36,33 @@ async def diagnose_plant(
     # Generate regenerative advisory
     geo_id = anonymize_location(lat, lon)
     top_detection = prediction[0] if prediction else {}
-    advisory = generate_advisory(
-        ndvi=0.72,
-        weather_data={"temp": 28, "soil_moisture": 42},
-        diagnosis=top_detection
-    )
+    disease_name = top_detection.get("disease_name", "Unknown Disease")
+    
+    advisory = get_treatment_plan(disease_name)
     
     scan_id = f"SCAN-{uuid.uuid4().hex[:6].upper()}"
     
+    # Dynamically construct audio script
+    is_healthy = "Healthy" in disease_name
+    primary_treatment = advisory.get("natural_treatments", [""])[0] if advisory.get("natural_treatments") else ""
+    
+    if is_healthy:
+        audio_script = "Diagnostic complete. Your crop appears healthy! No immediate intervention is required. Maintain your current regenerative soil practices."
+    else:
+        audio_script = f"Diagnostic update. The scan indicates a high probability of {disease_name}. For remediation, we recommend {primary_treatment}"
+
     return {
         "status": "success",
         "scan_id": scan_id,
         "geo_id": geo_id,
-        "disease_name": top_detection.get("disease_name", "Unknown Disease"),
+        "disease_name": disease_name,
         "scientific_name": "Pathogen Detection",
-        "severity": "Moderate",
+        "severity": advisory.get("warning_level", "Unknown"),
         "severity_color": "tertiary",
         "confidence": top_detection.get("confidence", 0.94),
         "detections": prediction,
         "regenerative_plan": advisory,
-        "audio_script": (
-            "Diagnostic update for your tomato crop. Moderate Tomato Early Blight has been detected with 94 percent confidence. "
-            "We recommend applying Bacillus subtilis bio-fungicide immediately to healthy surrounding foliage, and neem oil weekly in the early morning. "
-            "Transition to drip irrigation to keep leaf surfaces dry."
-        ),
+        "audio_script": audio_script,
         "privacy_status": "EXIF & GPS metadata stripped. Location mapped to H3 privacy cell."
     }
 
